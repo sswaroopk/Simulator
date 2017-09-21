@@ -1009,7 +1009,7 @@ end flowsheet1;
     parameter Real k_drum = 0.3 "units = ft/s" annotation(Dialog(tab = "Sizing"));
     parameter Real Area = 4 "units = m2" annotation(Dialog(tab = "Sizing")), Volume = 8 "units = m3" annotation(Dialog(tab = "Sizing"));
     parameter Real Ti = 310 "units = K" annotation(Dialog(group = "Operating conditions"));
-    protected parameter Real R = 8.314 "units = kJ/kmol.K", A(fixed = false), V_Total(fixed = false);
+    parameter Real R = 8.314 "units = kJ/kmol.K", A(fixed = false), V_Total(fixed = false);
     Real z[NOC], Tf;
     Real y[NOC], x[NOC](start = {0.7, 1e-18, 0.3, 0}), k[NOC], L(start = 100, min = 0), V(start = 140, min = 0), Psat_T[NOC], M[NOC], M_Total, ML(start = 50), MG(start = 0.5), VL, VG, Q, hv[NOC], hl[NOC], Hf, Hv, Hl, H_M_Total, F, densityi[NOC], P, h;
     unitoperations.sensor sensor1 annotation(Placement(visible = true, transformation(origin = {2, 82}, extent = {{-16, -16}, {16, 16}}, rotation = 0), iconTransformation(origin = {8.88178e-16, 82}, extent = {{-16, -16}, {16, 16}}, rotation = 0)));
@@ -1093,10 +1093,10 @@ end flowsheet1;
   end Pump;
 
   model FlashWithSizingTest
-    MaterialStream materialStream1(Flowrate = 1, Pressure = 10e5, Temperature = 350, molefraction = {0.25, 0.25, 0.25, 0.25}, step_value = 0.001, stepchange = true, unspecified = false) annotation(Placement(visible = true, transformation(origin = {-78, -2}, extent = {{-18, -18}, {18, 18}}, rotation = 0)));
+    MaterialStream materialStream1(Flowrate = 1, Pressure = 10e5, Temperature = 300, molefraction = {0.25, 0.25, 0.25, 0.25}, step_value = 0.001, stepchange = true, unspecified = false) annotation(Placement(visible = true, transformation(origin = {-78, -2}, extent = {{-18, -18}, {18, 18}}, rotation = 0)));
     FlashWithSizing flash1(OverrideSizeCalculations = false, connectedToInput = true)  annotation(Placement(visible = true, transformation(origin = {-5, -1}, extent = {{-29, -29}, {29, 29}}, rotation = 0)));
-    MaterialStream materialStream2 annotation(Placement(visible = true, transformation(origin = {101, 27}, extent = {{-19, -19}, {19, 19}}, rotation = 0)));
-    MaterialStream materialStream3 annotation(Placement(visible = true, transformation(origin = {84, -38}, extent = {{-24, -24}, {24, 24}}, rotation = 0)));
+    MaterialStream materialStream2(Tdf(start = 279))  annotation(Placement(visible = true, transformation(origin = {101, 27}, extent = {{-19, -19}, {19, 19}}, rotation = 0)));
+    MaterialStream materialStream3(Tdf(start = 370))  annotation(Placement(visible = true, transformation(origin = {84, -38}, extent = {{-24, -24}, {24, 24}}, rotation = 0)));
     valve valve1(OutletPfixed = true, OutletPressure = 1e5) annotation(Placement(visible = true, transformation(origin = {51, 25}, extent = {{-17, -17}, {17, 17}}, rotation = 0)));
     valve valve2(OutletPfixed = true, OutletPressure = 1e5) annotation(Placement(visible = true, transformation(origin = {26, -48}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
   equation
@@ -1117,7 +1117,7 @@ end flowsheet1;
   //  parameter Real Ti = 310 "units = K" annotation(Dialog(group = "Operating conditions"));
     protected parameter Real R = 8.314 "units = kJ/kmol.K", A(fixed = false), V_Total(fixed = false);
     Real z[NOC];
-    Real y[NOC], x[NOC](start = {0.5, 1e-18, 0.5, 0}, each min = 0), k[NOC], L(start = 0.5, min = 0), V(start = 0.5, min = 0), Psat_T[NOC], M[NOC], M_Total, ML(start = 50), MG(start = 0.5), VL, VG, Q, hv[NOC], hl[NOC], Hf, Hv, Hl, H_M_Total, F, densityi[NOC], P, h, Ti(start = 290);
+    Real y[NOC], x[NOC](start = {0.5, 1e-15, 0.5, 0}, each min = 0), k[NOC], L(start = 0.5, min = 0), V(start = 0.5, min = 0), Psat_T[NOC], M[NOC], M_Total, ML(start = 50), MG(start = 0.5), VL, VG, Q, hv[NOC], hl[NOC], Hf, Hv, Hl, H_M_Total, F, densityi[NOC], P, h, Ti(start = 290);
     unitoperations.sensor sensor1 annotation(Placement(visible = true, transformation(origin = {2, 82}, extent = {{-16, -16}, {16, 16}}, rotation = 0), iconTransformation(origin = {8.88178e-16, 82}, extent = {{-16, -16}, {16, 16}}, rotation = 0)));
     unitoperations.sensor sensor3 annotation(Placement(visible = true, transformation(origin = {82, -32}, extent = {{-16, -16}, {16, 16}}, rotation = 0), iconTransformation(origin = {77, -31}, extent = {{-19, -19}, {19, 19}}, rotation = 0)));
     unitoperations.port port1 annotation(Placement(visible = true, transformation(origin = {1, -83}, extent = {{-17, -17}, {17, 17}}, rotation = 0), iconTransformation(origin = {-8.88178e-16, -74}, extent = {{-18, -18}, {18, 18}}, rotation = 0)));
