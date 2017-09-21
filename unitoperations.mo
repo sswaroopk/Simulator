@@ -76,13 +76,7 @@ package unitoperations
   end valve;
 
   model MaterialStream
-    parameter Integer NOC = 4;
-    parameter Chemsep_Database.Toluene comp1;
-    parameter Chemsep_Database.Hydrogen comp2;
-    parameter Chemsep_Database.Benzene comp3;
-    parameter Chemsep_Database.Methane comp4;
-    parameter String Name = "MS1";
-    parameter Chemsep_Database.General_Properties comp[NOC] = {comp1, comp2, comp3, comp4};
+    extends compounds;
     parameter Real Flowrate = 100, Pressure = 1e5, Temperature = 300, molefraction[NOC] = zeros(NOC);
     parameter Boolean unspecified = true;
     parameter Boolean stepchange = false;
@@ -1112,4 +1106,106 @@ end flowsheet1;
     connect(valve1.port2, materialStream2.port1) annotation(Line(points = {{64, 26}, {84, 26}, {84, 28}, {86, 28}}));
     connect(flash1.port2, valve1.port1) annotation(Line(points = {{18, 14}, {36, 14}, {36, 24}, {38, 24}}));
   end FlashWithSizingTest;
+
+  model PhFlashWithSizing
+    parameter Real hset = 3.7 "units = m" annotation(Dialog(group = "Operating conditions")), Pset = 5e5 "units = Pa" annotation(Dialog(group = "Operating conditions"));
+    extends compounds;
+    parameter Boolean connectedToInput = false;
+    parameter Boolean OverrideSizeCalculations(start = false) annotation(Dialog(tab = "Sizing"));
+    parameter Real k_drum = 0.3 "units = ft/s" annotation(Dialog(tab = "Sizing"));
+    parameter Real Area = 4 "units = m2" annotation(Dialog(tab = "Sizing")), Volume = 8 "units = m3" annotation(Dialog(tab = "Sizing"));
+  //  parameter Real Ti = 310 "units = K" annotation(Dialog(group = "Operating conditions"));
+    protected parameter Real R = 8.314 "units = kJ/kmol.K", A(fixed = false), V_Total(fixed = false);
+    Real z[NOC];
+    Real y[NOC], x[NOC](start = {0.5, 1e-18, 0.5, 0}, each min = 0), k[NOC], L(start = 0.5, min = 0), V(start = 0.5, min = 0), Psat_T[NOC], M[NOC], M_Total, ML(start = 50), MG(start = 0.5), VL, VG, Q, hv[NOC], hl[NOC], Hf, Hv, Hl, H_M_Total, F, densityi[NOC], P, h, Ti(start = 290);
+    unitoperations.sensor sensor1 annotation(Placement(visible = true, transformation(origin = {2, 82}, extent = {{-16, -16}, {16, 16}}, rotation = 0), iconTransformation(origin = {8.88178e-16, 82}, extent = {{-16, -16}, {16, 16}}, rotation = 0)));
+    unitoperations.sensor sensor3 annotation(Placement(visible = true, transformation(origin = {82, -32}, extent = {{-16, -16}, {16, 16}}, rotation = 0), iconTransformation(origin = {77, -31}, extent = {{-19, -19}, {19, 19}}, rotation = 0)));
+    unitoperations.port port1 annotation(Placement(visible = true, transformation(origin = {1, -83}, extent = {{-17, -17}, {17, 17}}, rotation = 0), iconTransformation(origin = {-8.88178e-16, -74}, extent = {{-18, -18}, {18, 18}}, rotation = 0)));
+    unitoperations.port port2 annotation(Placement(visible = true, transformation(origin = {80, 48}, extent = {{-16, -16}, {16, 16}}, rotation = 0), iconTransformation(origin = {76, 52}, extent = {{-16, -16}, {16, 16}}, rotation = 0)));
+    unitoperations.port port3 annotation(Placement(visible = true, transformation(origin = {-84, 0}, extent = {{-18, -18}, {18, 18}}, rotation = 0), iconTransformation(origin = {-80, 4}, extent = {{-20, -20}, {20, 20}}, rotation = 0)));
+  initial equation
+    h = hset;
+    P = Pset;
+    for i in 1:NOC - 1 loop
+      der(M[i]) = 0;
+    end for;
+    der(M_Total) = 0;
+  //der(H_M_Total) = 0;
+    if OverrideSizeCalculations == false then
+      k_drum *0.3048* ((sum(x[:] .* densityi[:]) - P/(R*Ti*1000))*P/(R*Ti*1000))^0.5 * A = V;
+      V_Total = A * 4 * (4 * A / 3.14)^0.5;
+    else
+      A = Area;
+      V_Total = Volume;
+    end if;
+  equation
+    F = port3.moleflow;
+    z[:] = port3.molefrac[:];
+    Q = 0;
+    if connectedToInput == false then
+     port3.pressure = P; 
+    end if;
+    for i in 1:NOC loop
+      Psat_T[i] = Functions.Psat(comp[i].VP, Ti);
+      hv[i] = Functions.HVapId(comp[i].VapCp, comp[i].HOV, comp[i].Tc, Ti);
+      hl[i] = Functions.HLiqId(comp[i].VapCp, comp[i].HOV, comp[i].Tc, Ti);
+      densityi[i] = Functions.Density(comp[i].LiqDen, comp[i].Tc, Ti, P);
+    end for;
+  /* Mass Blanace equations */
+    der(M_Total) = F - L - V;
+  //F - L - V = 0;
+    for i in 1:NOC - 1 loop
+      der(M[i]) = F * z[i] - L * x[i] - V * y[i];
+  //F * z[i] - L * x[i] - V * y[i] = 0;
+      M[i] = ML * x[i] + MG * y[i];
+    end for;
+    sum(M[:]) = M_Total;
+    M_Total = MG + ML;
+    VL = ML / sum(x[:] .* densityi[:]);
+    VG = V_Total - VL;
+    P * VG = MG * R * Ti * 1000;
+  //ideal gas law for gas phase
+  /*energy balance */
+    Hv = V * sum(y[:] .* hv[:]);
+    Hf = port3.enthalpy;
+    Hl = L * sum(x[:] .* hl[:]);
+    H_M_Total = ML * sum(x[:] .* hl[:]) + MG * sum(y[:] .* hv[:]);
+  //Hf - Hv - Hl = der(H_M_Total);
+    Hf - Hv - Hl + Q = 0;
+  /*Thermodynamic equations */
+    sum(x[:]) = 1;
+    sum(y[:]) = 1;
+    y[:] = k[:] .* x[:];
+    k[:] = Psat_T[:] / P;
+  /* Control */
+    A * h = VL;
+  //connector equations
+    sensor1.var = P;
+    sensor3.var = h;
+    port1.moleflow = L;
+    port1.pressure = P;
+    port1.temperature = Ti;
+    port1.molefrac[:] = x[:];
+    port2.moleflow = V;
+    port2.pressure = P;
+    port2.temperature = Ti;
+    port2.molefrac[:] = y[:];
+    annotation(Icon(graphics = {Text(origin = {-30, 86}, extent = {{-22, 32}, {22, -32}}, textString = "Pressure"), Text(origin = {56, 46}, extent = {{-10, 24}, {2, -2}}, textString = "V"), Text(origin = {60, -33}, extent = {{-12, 25}, {4, -3}}, textString = "h"), Text(origin = {-16, -82}, extent = {{-14, 26}, {2, -6}}, textString = "L"), Text(origin = {0, 15}, extent = {{-46, 41}, {46, -41}}, textString = "PT flash"), Rectangle(origin = {1, 0}, extent = {{-87, 96}, {87, -96}}), Text(origin = {-64, -21}, extent = {{-10, 17}, {10, -17}}, textString = "F")}, coordinateSystem(initialScale = 0.1)));
+  
+  end PhFlashWithSizing;
+
+  model PhFlashWithSizingTest
+    MaterialStream materialStream1(Flowrate = 1, Pressure = 10e5, Temperature = 300, molefraction = {0.25, 0.25, 0.25, 0.25}, step_value = 0.001, stepchange = true, unspecified = false) annotation(Placement(visible = true, transformation(origin = {-78, -2}, extent = {{-18, -18}, {18, 18}}, rotation = 0)));
+    PhFlashWithSizing flash1(OverrideSizeCalculations = false, connectedToInput = true)  annotation(Placement(visible = true, transformation(origin = {-5, -1}, extent = {{-29, -29}, {29, 29}}, rotation = 0)));
+    MaterialStream materialStream2 annotation(Placement(visible = true, transformation(origin = {101, 27}, extent = {{-19, -19}, {19, 19}}, rotation = 0)));
+    MaterialStream materialStream3(Tbf(start = 350))  annotation(Placement(visible = true, transformation(origin = {84, -38}, extent = {{-24, -24}, {24, 24}}, rotation = 0)));
+    valve valve1(OutletPfixed = true, OutletPressure = 1e5) annotation(Placement(visible = true, transformation(origin = {51, 25}, extent = {{-17, -17}, {17, 17}}, rotation = 0)));
+    valve valve2(OutletPfixed = true, OutletPressure = 1e5) annotation(Placement(visible = true, transformation(origin = {26, -48}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
+  equation
+    connect(materialStream1.port2, flash1.port3) annotation(Line(points = {{-62, -2}, {-28, -2}, {-28, 0}, {-28, 0}}));
+    connect(valve2.port2, materialStream3.port1) annotation(Line(points = {{34, -48}, {64, -48}, {64, -38}, {64, -38}}));
+    connect(flash1.port1, valve2.port1) annotation(Line(points = {{-4, -22}, {-4, -22}, {-4, -48}, {18, -48}, {18, -48}}));
+    connect(valve1.port2, materialStream2.port1) annotation(Line(points = {{64, 26}, {84, 26}, {84, 28}, {86, 28}}));
+    connect(flash1.port2, valve1.port1) annotation(Line(points = {{18, 14}, {36, 14}, {36, 24}, {38, 24}}));
+  end PhFlashWithSizingTest;
 end unitoperations;
