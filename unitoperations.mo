@@ -174,27 +174,31 @@ package unitoperations
   end materialtest;
 
   model CSTR
-    parameter Integer NOC = 4;
-    parameter Chemsep_Database.Toluene comp1;
-    parameter Chemsep_Database.Hydrogen comp2;
-    parameter Chemsep_Database.Benzene comp3;
-    parameter Chemsep_Database.Methane comp4;
-    parameter Chemsep_Database.General_Properties comp[NOC] = {comp1, comp2, comp3, comp4};
-    parameter Boolean Operation;
+    extends unitoperations.compounds;
     parameter Real s[NOC] = {-1, -1, 1, 1} "stoichiometric coefficients";
     parameter Integer NOIS = 2 "No of input streams";
     parameter Integer n = 1 "base compound identity in comp[n]";
     parameter Real V_Total = 2.321 "Volume of reactor", P_init = 25e5 "Pressure at t = 0";
-    parameter Real R = 8.314, delH_r = 12.6e3 "Heat of reaction", T_iso = 650;
+    constant Real R = 8.314;
+    parameter Real Af "frequency factor for forward reaction" annotation(Dialog(tab = "Reactions", group = "forward reaction rate constants"));
+    parameter Real order_f[4] "order wrt to components for forward reaction" annotation(Dialog(tab = "Reactions", group = "forward reaction rate constants"));
+    parameter Real order_b[4] "order wrt to components for backward reaction" annotation(Dialog(tab = "Reactions", group = "backward reaction rate constants"));
+    parameter Real Ab "frequency factor for backward reaction" annotation(Dialog(tab = "Reactions", group = "backward reaction rate constants"));
+    parameter Real Eaf "Activation energy for forward reaction" annotation(Dialog(tab = "Reactions", group = "forward reaction rate constants"));
+    parameter Real Eab "Activation energy for backward reaction" annotation(Dialog(tab = "Reactions", group = "backward reaction rate constants"));
+    parameter Real delH_r = 12.6e3 "Heat of reaction" annotation(Dialog(tab = "Reactions", group = "Reaction rate constants"));
+    type operation_type = enumeration(Isothermal, Adiabatic);
+    parameter operation_type operation_mode; 
+    parameter Real  T_iso = 900;
     Real F_in[NOIS], z[NOIS, NOC], Hin[NOIS] "Feed values";
     Real M_Total(start = 1.5), M[NOC], x[NOC], F_out, densityi[NOC], P;
     Real r, kf, kb, c[NOC];
-    Real H_r, Hout, Q, T(start = 650);
+    Real H_r, Hout, Q, T;
     unitoperations.port port1 annotation(Placement(visible = true, transformation(origin = {-82, 2}, extent = {{-18, -18}, {18, 18}}, rotation = 0), iconTransformation(origin = {-85, 1}, extent = {{-17, -17}, {17, 17}}, rotation = 0)));
     unitoperations.port port2 annotation(Placement(visible = true, transformation(origin = {2, 84}, extent = {{-18, -18}, {18, 18}}, rotation = 0), iconTransformation(origin = {3, 83}, extent = {{-17, -17}, {17, 17}}, rotation = 0)));
-    unitoperations.port port3 annotation(Placement(visible = true, transformation(origin = {81, -77}, extent = {{-17, -17}, {17, 17}}, rotation = 0), iconTransformation(origin = {78, -74}, extent = {{-20, -20}, {20, 20}}, rotation = 0)));
+  unitoperations.port port3 annotation(Placement(visible = true, transformation(origin = {89, -75}, extent = {{-17, -17}, {17, 17}}, rotation = 0), iconTransformation(origin = {82, -68}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
   initial equation
-//calculates steady state solution at t=0
+  //calculates steady state solution at t=0
     P = P_init;
     der(M_Total) = 0;
     for i in 1:NOC - 1 loop
@@ -212,29 +216,27 @@ package unitoperations
     end for;
     for i in 1:NOC loop
       x[i] = M[i] / M_Total;
-      c[i] = M[i] / V_Total;
+      //c[i] = M[i]*1000 / (V_Total*1000);
+      c[i] = x[i] * P/(R*T);
     end for;
-//reaction rate
-/*kf = 8.43 * exp(-27.5 * 1e3 / (R * T));
-kb = 1.12 * exp(-31.3 * 1e3 / (R * T)); */
-    kf = 20;
-    kb = 0;
-    r = 20;
-//kf * c[1] * c[2] - kb * c[3] * c[4];
-//unsteady state mass balance
+  //reaction rate
+    kf = Af * exp(-Eaf / (R * T));
+    kb = Ab * exp(-Eab / (R * T)); 
+    r = kf * product(c[:].^order_f[:]) - kb * product(c[:].^order_b[:]);
+  //unsteady state mass balance
     for i in 1:NOC - 1 loop
-      der(M[i]) = sum(z[:, i] .* F_in[:]) - x[i] * F_out + s[i] * r * V_Total / abs(s[n]);
+      der(M[i]) = sum(z[:, i] .* F_in[:]) - x[i] * F_out + s[i] * r * V_Total*1000 / abs(s[n]);
     end for;
     der(M_Total) = sum(F_in[:]) - F_out;
-//Pressure
+  //Pressure
     M_Total = sum(M[:]);
     P * V_Total = M_Total * R * T * 1000;
-//Energy balance
-    if Operation == true then
+  //Energy balance
+    if Integer(operation_mode) == 1 then
       T = T_iso;
     else
       Q = 0;
-    end if;
+    end if;   
     H_r = r * V_Total * delH_r;
     sum(Hin[:]) + Q + H_r = Hout;
     Hout = port3.enthalpy;
@@ -250,7 +252,7 @@ kb = 1.12 * exp(-31.3 * 1e3 / (R * T)); */
     MaterialStream materialStream2(Flowrate = 100, Pressure = 24e5, Temperature = 350, molefraction = {0, 0.9, 0, 0.1}, unspecified = false) annotation(Placement(visible = true, transformation(origin = {-45, 65}, extent = {{-17, -17}, {17, 17}}, rotation = 0)));
     valve valve1(Control = false, OutletPfixed = true, OutletPressure = 5e5, valveCv = 0.4) annotation(Placement(visible = true, transformation(origin = {56, -20}, extent = {{-20, -20}, {20, 20}}, rotation = 0)));
     MaterialStream materialStream3 annotation(Placement(visible = true, transformation(origin = {110, -22}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
-    CSTR cSTR1(Operation = true) annotation(Placement(visible = true, transformation(origin = {-14, -10}, extent = {{-22, -22}, {22, 22}}, rotation = 0)));
+    CSTR cSTR1(Ab = 0, Af = 5.1e11, Eab = 0, Eaf = 230e3, V_Total = 4, operation_mode = modelicatest.CSTR.operation_type.Isothermal, order_b = {0, 0, 0, 0}, order_f = {1, 0.5, 0, 0})  annotation(Placement(visible = true, transformation(origin = {-14, -10}, extent = {{-22, -22}, {22, 22}}, rotation = 0)));
   equation
     connect(cSTR1.port3, valve1.port1) annotation(Line(points = {{4, -26}, {38, -26}, {38, -20}, {40, -20}}));
     connect(materialStream2.port2, cSTR1.port2) annotation(Line(points = {{-30, 66}, {-14, 66}, {-14, 8}, {-14, 8}}));
