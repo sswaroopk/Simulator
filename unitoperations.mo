@@ -190,9 +190,9 @@ package unitoperations
     type operation_type = enumeration(Isothermal, Adiabatic);
     parameter operation_type operation_mode; 
     parameter Real  T_iso(unit = "K") = 900;
-    Real F_in[NOIS](unit = "mol/s"), z[NOIS, NOC], Hin[NOIS](unit = "J/s");
-    Real M_Total(unit = "mol",start = 1.5), M[NOC](unit = "mol"), x[NOC], F_out(unit = "mol/s"), densityi[NOC](unit = "kmol/m3"), P(unit = "Pa");
-    Real r(unit = "mol/s"), kf, kb, c[NOC](unit = "mol/m3");
+    Real F_in[NOIS](each unit = "mol/s"), z[NOIS, NOC], Hin[NOIS](each unit = "J/s");
+    Real M_Total(unit = "mol",start = 1.5), M[NOC](each unit = "mol"), x[NOC], F_out(unit = "mol/s"), densityi[NOC](each unit = "kmol/m3"), P(unit = "Pa");
+    Real r(unit = "mol/s"), kf, kb, c[NOC](each unit = "mol/m3");
     Real H_r(unit = "J/s"), Hout(unit = "J/s"), Q(unit = "J/s"), T(unit = "K");
     unitoperations.port port1 annotation(Placement(visible = true, transformation(origin = {-82, 2}, extent = {{-18, -18}, {18, 18}}, rotation = 0), iconTransformation(origin = {-85, 1}, extent = {{-17, -17}, {17, 17}}, rotation = 0)));
     unitoperations.port port2 annotation(Placement(visible = true, transformation(origin = {2, 84}, extent = {{-18, -18}, {18, 18}}, rotation = 0), iconTransformation(origin = {3, 83}, extent = {{-17, -17}, {17, 17}}, rotation = 0)));
