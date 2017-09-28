@@ -82,7 +82,7 @@ package unitoperations
     parameter Boolean stepchange = false;
     parameter Real stepchangetime = 0.01;
     parameter Real step_value = 1;
-    Real kf[NOC], zl[NOC](each min = 0, each max = 1, start = {0.5, 1e-18, 0.5, 0}), zv[NOC](each min = 0, each max = 1, start = {0, 0.25, 0, 0.75}), Fl(unit = "mol/s", min = 0, start = 100), Fv(unit = "mol/s", min = 0, start = 140), Tbf(unit = "K", start = 62), Tdf(unit = "K", start = 495.5), Psat_Tdf[NOC](each unit = "Pa"), Psat_Tbf[NOC](each unit = "Pa"), Psat_Tf[NOC](unit = "Pa"), Pf(unit = "Pa"), Tf(unit = "K"), z[NOC], F(unit = "mol/s");
+    Real kf[NOC], zl[NOC](each min = 0, each max = 1, start = {0.5, 1e-18, 0.5, 0}), zv[NOC](each min = 0, each max = 1, start = {0, 0.25, 0, 0.75}), Fl(unit = "mol/s", min = 0, start = 100), Fv(unit = "mol/s", min = 0, start = 140), Tbf(unit = "K", start = 62), Tdf(unit = "K", start = 495.5), Psat_Tdf[NOC](each unit = "Pa"), Psat_Tbf[NOC](each unit = "Pa"), Psat_Tf[NOC](each unit = "Pa"), Pf(unit = "Pa"), Tf(unit = "K"), z[NOC], F(unit = "mol/s");
     Real Hvf[NOC] "J/mol", Hlf[NOC] "J/mol", H "J/s";
     unitoperations.port port2 annotation(Placement(visible = true, transformation(origin = {80, -4}, extent = {{-18, -18}, {18, 18}}, rotation = 0), iconTransformation(origin = {85, 1}, extent = {{-21, -21}, {21, 21}}, rotation = 0)));
     unitoperations.port port1 annotation(Placement(visible = true, transformation(origin = {-80, -4}, extent = {{-18, -18}, {18, 18}}, rotation = 0), iconTransformation(origin = {-82, 0}, extent = {{-20, -20}, {20, 20}}, rotation = 0)));
@@ -248,11 +248,11 @@ package unitoperations
   end CSTR;
 
   model CSTR_DynamicTest
-    MaterialStream materialStream1(Flowrate = 100, Pressure = 24e5, Temperature = 600, molefraction = {0.9, 0, 0.1, 0}, step_value = 20, stepchange = false, stepchangetime = 0.01, unspecified = false) annotation(Placement(visible = true, transformation(origin = {-87, -1}, extent = {{-19, -19}, {19, 19}}, rotation = 0)));
-    MaterialStream materialStream2(Flowrate = 100, Pressure = 24e5, Temperature = 350, molefraction = {0, 0.9, 0, 0.1}, unspecified = false) annotation(Placement(visible = true, transformation(origin = {-45, 65}, extent = {{-17, -17}, {17, 17}}, rotation = 0)));
-    valve valve1(Control = false, OutletPfixed = true, OutletPressure = 5e5, valveCv = 0.4) annotation(Placement(visible = true, transformation(origin = {56, -20}, extent = {{-20, -20}, {20, 20}}, rotation = 0)));
+    MaterialStream materialStream1(Flowrate = 100, Pressure = 24, Tbf(start = 350), Temperature = 600, molefraction = {0.9, 0, 0.1, 0}, step_value = 20, stepchange = false, stepchangetime = 0.01, unspecified = false) annotation(Placement(visible = true, transformation(origin = {-87, -1}, extent = {{-19, -19}, {19, 19}}, rotation = 0)));
+    MaterialStream materialStream2(Flowrate = 100, Pressure = 24, Temperature = 350, molefraction = {0, 0.9, 0, 0.1}, unspecified = false) annotation(Placement(visible = true, transformation(origin = {-45, 65}, extent = {{-17, -17}, {17, 17}}, rotation = 0)));
+    valve valve1(Control = false, OutletPfixed = true, OutletPressure = 5, valveCv = 0.4) annotation(Placement(visible = true, transformation(origin = {56, -20}, extent = {{-20, -20}, {20, 20}}, rotation = 0)));
     MaterialStream materialStream3 annotation(Placement(visible = true, transformation(origin = {110, -22}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
-    CSTR cSTR1(Ab = 0, Af = 5.1e11, Eab = 0, Eaf = 230e3, V_Total = 4, operation_mode = modelicatest.CSTR.operation_type.Isothermal, order_b = {0, 0, 0, 0}, order_f = {1, 0.5, 0, 0})  annotation(Placement(visible = true, transformation(origin = {-14, -10}, extent = {{-22, -22}, {22, 22}}, rotation = 0)));
+    CSTR cSTR1(Ab = 0, Af = 5.1e11, Eab = 0, Eaf = 230e3, V_Total = 4, operation_mode = unitoperations.CSTR.operation_type.Isothermal, order_b = {0, 0, 0, 0}, order_f = {1, 0.5, 0, 0})  annotation(Placement(visible = true, transformation(origin = {-14, -10}, extent = {{-22, -22}, {22, 22}}, rotation = 0)));
   equation
     connect(cSTR1.port3, valve1.port1) annotation(Line(points = {{4, -26}, {38, -26}, {38, -20}, {40, -20}}));
     connect(materialStream2.port2, cSTR1.port2) annotation(Line(points = {{-30, 66}, {-14, 66}, {-14, 8}, {-14, 8}}));
@@ -449,7 +449,6 @@ package unitoperations
     Real F[N_Trays](each start = 0), z[N_Trays, NOC](start = fill(0.5, N_Trays, NOC));
     port port1 annotation(Placement(visible = true, transformation(origin = {-88, 2}, extent = {{-10, -10}, {10, 10}}, rotation = 0), iconTransformation(origin = {-88, 2}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
     port port2 annotation(Placement(visible = true, transformation(origin = {92, 80}, extent = {{-10, -10}, {10, 10}}, rotation = 0), iconTransformation(origin = {92, 80}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
-    port port3 annotation(Placement(visible = true, transformation(origin = {94, -74}, extent = {{-10, -10}, {10, 10}}, rotation = 0), iconTransformation(origin = {94, -74}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
   initial equation
     for i in 1:N_Trays loop
 //M[i] = M0[i];
@@ -460,7 +459,7 @@ package unitoperations
 //dx[i,1] = 0;
     end for;
   equation
-    port1.pressure = P[N_Feed];
+   // port1.pressure = P[N_Feed];
     for i in 1:N_Trays loop
       if i == N_Feed then
         F[i] = port1.moleflow;
@@ -549,10 +548,10 @@ package unitoperations
     port2.molefrac = {xc[2], 0, xc[1], 0};
     port2.temperature = TC;
     port2.pressure = P_condenser;
-    port3.moleflow = B;
+  /*  port3.moleflow = B;
     port3.molefrac = {xr[2], 0, xr[1], 0};
     port3.temperature = TB;
-    port3.pressure = P_condenser + Pressure_drop * (N_Trays + 1);
+    port3.pressure = (P_condenser + Pressure_drop * (N_Trays + 1));*/
     annotation(Icon(graphics = {Rectangle(origin = {-2, -1}, fillColor = {0, 85, 127}, fillPattern = FillPattern.VerticalCylinder, extent = {{-94, 95}, {94, -95}})}));
   end Distillation;
 
@@ -606,14 +605,12 @@ package unitoperations
   end separator_test;
 
   model Distillationtest
-    MaterialStream materialStream1(Flowrate = 98, Pressure = 1e5, Temperature = 365, molefraction = {0.45, 0, 0.55, 0}, unspecified = false) annotation(Placement(visible = true, transformation(origin = {-70, 4}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
-  MaterialStream materialStream3 annotation(Placement(visible = true, transformation(origin = {54, -34}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
+    MaterialStream materialStream1(Flowrate = 98, Pressure = 1, Temperature = 365, molefraction = {0.45, 0, 0.55, 0}, unspecified = false) annotation(Placement(visible = true, transformation(origin = {-70, 4}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
   MaterialStream materialStream2 annotation(Placement(visible = true, transformation(origin = {41, 27}, extent = {{-11, -11}, {11, 11}}, rotation = 0)));
   Distillation distillation1 annotation(Placement(visible = true, transformation(origin = {-14, 6}, extent = {{-22, -22}, {22, 22}}, rotation = 0)));
   equation
     connect(materialStream1.port2, distillation1.port1) annotation(Line(points = {{-62, 4}, {-34, 4}, {-34, 6}, {-34, 6}}));
     connect(distillation1.port2, materialStream2.port1) annotation(Line(points = {{6, 24}, {30, 24}, {30, 28}, {32, 28}}));
-    connect(materialStream3.port1, distillation1.port3) annotation(Line(points = {{46, -34}, {8, -34}, {8, -10}, {6, -10}}));
   end Distillationtest;
 
   model flowsheet
@@ -1212,4 +1209,7 @@ end FlashWithSizing;
     connect(valve1.port2, materialStream2.port1) annotation(Line(points = {{64, 26}, {84, 26}, {84, 28}, {86, 28}}));
     connect(flash1.port2, valve1.port1) annotation(Line(points = {{18, 14}, {36, 14}, {36, 24}, {38, 24}}));
   end PhFlashWithSizingTest;
+
+  model Mixer
+  end Mixer;
 end unitoperations;
