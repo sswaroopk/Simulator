@@ -1,6 +1,6 @@
 package BenzeneProduction
   model Reactor
-    unitoperations.MaterialStream materialStream1(Flowrate = 22, Pressure = 24, Temperature = 600, molefraction = {0.9, 0, 0.1, 0}, unspecified = false) annotation(Placement(visible = true, transformation(origin = {-82, -22}, extent = {{-12, -12}, {12, 12}}, rotation = 0)));
+    unitoperations.MaterialStream materialStream1(Flowrate = 22, Pressure = 24, Temperature = 600, molefraction = {0.9, 0, 0.1, 0}, step_value = 2, stepchange = true, unspecified = false) annotation(Placement(visible = true, transformation(origin = {-82, -22}, extent = {{-12, -12}, {12, 12}}, rotation = 0)));
     unitoperations.MaterialStream materialStream2(Flowrate = 66, Pressure = 24, Temperature = 600, molefraction = {0, 0.9, 0, 0.1}, unspecified = false) annotation(Placement(visible = true, transformation(origin = {-80, 42}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
     unitoperations.CSTR cSTR1(Ab = 0, Af = 5.1e11, Eab = 0, Eaf = 230e3, T_iso = 700, V_Total = 1, operation_mode = unitoperations.CSTR.operation_type.Isothermal, order_b = {0, 0, 0, 0}, order_f = {1, 0.5, 0, 0})  annotation(Placement(visible = true, transformation(origin = {6, -22}, extent = {{-18, -18}, {18, 18}}, rotation = 0)));
     unitoperations.MaterialStream materialStream3 annotation(Placement(visible = true, transformation(origin = {116, -34}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
@@ -68,7 +68,7 @@ package BenzeneProduction
   end reactorAndFlash;
 
   model reactorFlashDistillation
-    unitoperations.MaterialStream materialStream1(Flowrate = 22, Pressure = 24, Temperature = 600, molefraction = {0.9, 0, 0.1, 0}, unspecified = false) annotation(Placement(visible = true, transformation(origin = {-82, -22}, extent = {{-12, -12}, {12, 12}}, rotation = 0)));
+    unitoperations.MaterialStream materialStream1(Flowrate = 22, Pressure = 24, Temperature = 600, molefraction = {0.9, 0, 0.1, 0}, step_value = 2, stepchange = true, unspecified = false) annotation(Placement(visible = true, transformation(origin = {-82, -22}, extent = {{-12, -12}, {12, 12}}, rotation = 0)));
     unitoperations.MaterialStream materialStream2(Flowrate = 66, Pressure = 24, Temperature = 600, molefraction = {0, 0.9, 0, 0.1}, unspecified = false) annotation(Placement(visible = true, transformation(origin = {-80, 42}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
   unitoperations.CSTR cSTR1(Ab = 0, Af = 5.1e11, Eab = 0, Eaf = 230e3, T_iso = 700, V_Total = 1, operation_mode = unitoperations.CSTR.operation_type.Isothermal, order_b = {0, 0, 0, 0}, order_f = {1, 0.5, 0, 0}) annotation(Placement(visible = true, transformation(origin = {-30, -22}, extent = {{-18, -18}, {18, 18}}, rotation = 0)));
   unitoperations.MaterialStream materialStream3 annotation(Placement(visible = true, transformation(origin = {46, -34}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
@@ -91,4 +91,7 @@ package BenzeneProduction
     connect(materialStream2.port2, cSTR1.port2) annotation(Line(points = {{-71, 42}, {-29, 42}, {-29, -7}}));
     connect(materialStream1.port2, cSTR1.port1) annotation(Line(points = {{-72, -22}, {-45, -22}}));
   end reactorFlashDistillation;
+
+  model WithRecycle
+  end WithRecycle;
 end BenzeneProduction;

@@ -230,7 +230,7 @@ package unitoperations
     der(M_Total) = sum(F_in[:]) - F_out;
   //Pressure
     M_Total = sum(M[:]);
-    P * V_Total = M_Total * R * T * 1000;
+    P * V_Total = M_Total * R * T;
   //Energy balance
     if Integer(operation_mode) == 1 then
       T = T_iso;
@@ -1011,7 +1011,7 @@ model FlashWithSizing
   constant Real R(unit = "J/mol.K") = 8.314;
   parameter Real A(unit = "m2", fixed = false), V_Total(unit = "m3", fixed = false);
   Real z[NOC], Tf(unit = "K");
-  Real y[NOC], x[NOC](start = {0.7, 1e-18, 0.3, 0}), k[NOC], L(unit = "mol/s",start = 100, min = 0), V(start = 140, min = 0), Psat_T[NOC](each unit = "Pa"), M[NOC](each unit = "mol"), M_Total(unit = "mol"), ML(unit = "mol", start = 50), MG(unit = "mol", start = 0.5), VL(unit = "m3"), VG(unit = "m3"), Q(unit = "J/s"), hv[NOC](each unit = "J/mol"), hl[NOC](each unit = "J/mol"), Hf(unit = "J/s"), Hv(unit = "J/s"), Hl(unit = "J/s"), H_M_Total(unit = "J"), F(unit = "mol"), densityi[NOC](each unit = "kmol/m3"), P(unit = "Pa"), h(unit = "m");
+  Real y[NOC](each min = 0), x[NOC](each min = 0, start = {0.7, 1e-18, 0.3, 0}), k[NOC], L(unit = "mol/s",start = 100, min = 0), V(start = 140, min = 0), Psat_T[NOC](each unit = "Pa"), M[NOC](each unit = "mol"), M_Total(unit = "mol"), ML(unit = "mol", start = 50), MG(unit = "mol", start = 0.5), VL(unit = "m3"), VG(unit = "m3"), Q(unit = "J/s"), hv[NOC](each unit = "J/mol"), hl[NOC](each unit = "J/mol"), Hf(unit = "J/s"), Hv(unit = "J/s"), Hl(unit = "J/s"), H_M_Total(unit = "J"), F(unit = "mol"), densityi[NOC](each unit = "kmol/m3"), P(unit = "Pa"), h(unit = "m");
   unitoperations.sensor sensor1 annotation(Placement(visible = true, transformation(origin = {2, 82}, extent = {{-16, -16}, {16, 16}}, rotation = 0), iconTransformation(origin = {8.88178e-16, 82}, extent = {{-16, -16}, {16, 16}}, rotation = 0)));
   unitoperations.sensor sensor3 annotation(Placement(visible = true, transformation(origin = {82, -32}, extent = {{-16, -16}, {16, 16}}, rotation = 0), iconTransformation(origin = {77, -31}, extent = {{-19, -19}, {19, 19}}, rotation = 0)));
   unitoperations.port port1 annotation(Placement(visible = true, transformation(origin = {1, -83}, extent = {{-17, -17}, {17, 17}}, rotation = 0), iconTransformation(origin = {-8.88178e-16, -74}, extent = {{-18, -18}, {18, 18}}, rotation = 0)));
@@ -1210,6 +1210,24 @@ end FlashWithSizing;
     connect(flash1.port2, valve1.port1) annotation(Line(points = {{18, 14}, {36, 14}, {36, 24}, {38, 24}}));
   end PhFlashWithSizingTest;
 
-  model Mixer
-  end Mixer;
+model Mixer
+  port port1 annotation(Placement(visible = true, transformation(origin = {-90, 90}, extent = {{-10, -10}, {10, 10}}, rotation = 0), iconTransformation(origin = {-90, 90}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
+  port port2 annotation(Placement(visible = true, transformation(origin = {-90, -92}, extent = {{-10, -10}, {10, 10}}, rotation = 0), iconTransformation(origin = {-90, -92}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
+port port3 annotation(Placement(visible = true, transformation(origin = {90, 0}, extent = {{-10, -10}, {10, 10}}, rotation = 0), iconTransformation(origin = {90, 0}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
+equation
+/*Real moleflow;
+  Real pressure;
+  Real temperature;
+  Real molefrac[NOC];
+  Real liquidmoleflow, vapormoleflow;
+  Real liquidmolefrac[NOC], vapormolefrac[NOC];
+  Real enthalpy;*/
+port3.moleflow = port1.moleflow + port2.moleflow;
+port3.pressure = min({port1.pressure, port2.pressure});
+port3.molefrac[:] = (port1.molefrac[:]*port1.moleflow + port2.molefrac[:]*port.moleflow) / port3.moleflow;
+H = port1.enthalpy + port2.enthalpy;
+z = port3.molefrac;
+
+
+end Mixer;
 end unitoperations;
