@@ -63,7 +63,7 @@ package unitoperations
     port2.liquidmolefrac[:] = port1.liquidmolefrac[:];
     port2.vapormolefrac[:] = port1.vapormolefrac[:];
     port2.enthalpy = port1.enthalpy;
-    annotation(Icon(graphics = {Polygon(origin = {-48.26, -2.99}, fillColor = {170, 170, 255}, fillPattern = FillPattern.Solid, points = {{-47.7381, 48.9887}, {-47.7381, -49.0113}, {48.2619, 2.98874}, {48.2619, 2.98874}, {-47.7381, 48.9887}}), Polygon(origin = {49.25, -4.98}, fillColor = {170, 170, 255}, fillPattern = FillPattern.Solid, points = {{-47.2509, 4.98071}, {46.7491, 48.9807}, {46.7491, -49.0193}, {-47.2509, 4.98071}}), Rectangle(origin = {1, 35}, fillColor = {170, 170, 255}, fillPattern = FillPattern.Solid, extent = {{-15, 35}, {15, -35}})}, coordinateSystem(initialScale = 0.1)));
+    annotation(Icon(graphics = {Polygon(origin = {-48.26, -2.99}, fillColor = {170, 170, 255}, fillPattern = FillPattern.Solid, points = {{-47.7381, 48.9887}, {-47.7381, -49.0113}, {48.2619, 2.98874}, {48.2619, 2.98874}, {-47.7381, 48.9887}}), Polygon(origin = {49.25, -4.98}, fillColor = {170, 170, 255}, fillPattern = FillPattern.Solid, points = {{-47.2509, 4.98071}, {46.7491, 48.9807}, {46.7491, -49.0193}, {-47.2509, 4.98071}}), Rectangle(origin = {1, 35}, fillColor = {170, 170, 255}, fillPattern = FillPattern.Solid, extent = {{-15, 35}, {15, -35}}), Text(origin = {0, -73}, extent = {{-52, 25}, {52, -25}}, textString = "Valve")}, coordinateSystem(initialScale = 0.1)));
   end valve;
 
   model MaterialStream
@@ -176,7 +176,7 @@ package unitoperations
     port2.liquidmoleflow = Fl;
     port2.vapormoleflow = Fv;
     port2.enthalpy = H;
-    annotation(Icon(graphics = {Rectangle(origin = {-4, 1}, fillColor = {0, 170, 255}, fillPattern = FillPattern.HorizontalCylinder, extent = {{-90, 45}, {90, -45}}), Text(origin = {-17, -1}, extent = {{-51, 27}, {51, -27}}, textString = ""), Line(origin = {-3, 0}, points = {{-67, 0}, {67, 0}}, color = {0, 85, 255}, thickness = 1, arrow = {Arrow.None, Arrow.Filled}, arrowSize = 30, smooth = Smooth.Bezier)}, coordinateSystem(initialScale = 0.1)));
+    annotation(Icon(graphics = {Text(origin = {-17, -1}, extent = {{-51, 27}, {51, -27}}, textString = ""),  Text(origin = {0, -70}, extent = {{-86, 20}, {86, -20}}, textString = "Material"), Rectangle(origin = {-22, 0}, fillColor = {170, 170, 255}, fillPattern = FillPattern.Solid, extent = {{-72, 20}, {72, -20}}), Polygon(origin = {74.81, 1.98}, fillColor = {170, 170, 255}, fillPattern = FillPattern.Solid, points = {{-24.8123, 38.0153}, {25.1877, -1.98467}, {-24.8123, -37.9847}, {-24.8123, 18.0153}, {-24.8123, 38.0153}})}, coordinateSystem(initialScale = 0.1)));
   end MaterialStream;
 
   model CSTR
@@ -1039,18 +1039,15 @@ package unitoperations
 
   model Mixer
     extends compounds;
+    Real F, z[NOC], Fl(start = 37), zl[NOC](start = {1,0,1e-3,0}, each nominal = 1e-2), Fv, zv[NOC](each nominal = 1e-2);
+    Real H, Hl[NOC], Hv[NOC], Hl_Tb[NOC], Hv_Td[NOC], H_Tb, H_Td;
+    Real T(start = 315, nominal = 1e2), Tb(start = 350), Td(start = 350);
+    Real P, Psat_T[NOC], Psat_Tb[NOC], Psat_Td[NOC], k[NOC];
     unitoperations.port port1 annotation(Placement(visible = true, transformation(origin = {-90, 90}, extent = {{-10, -10}, {10, 10}}, rotation = 0), iconTransformation(origin = {-87, 79}, extent = {{-21, -21}, {21, 21}}, rotation = 0)));
     unitoperations.port port2 annotation(Placement(visible = true, transformation(origin = {-90, -92}, extent = {{-10, -10}, {10, 10}}, rotation = 0), iconTransformation(origin = {-87,-81}, extent = {{-19, -19}, {19, 19}}, rotation = 0)));
     unitoperations.port port3 annotation(Placement(visible = true, transformation(origin = {90, 0}, extent = {{-10, -10}, {10, 10}}, rotation = 0), iconTransformation(origin = {88, 0}, extent = {{-20, -20}, {20, 20}}, rotation = 0)));
   equation
-/*Real moleflow;
-  Real pressure;
-  Real temperature;
-  Real molefrac[NOC];
-  Real liquidmoleflow, vapormoleflow;
-  Real liquidmolefrac[NOC], vapormolefrac[NOC];
-  Real enthalpy;*/
-    port3.moleflow = port1.moleflow + port2.moleflow;
+  /*  port3.moleflow = port1.moleflow + port2.moleflow;
     port3.pressure = min({port1.pressure, port2.pressure});
     port3.molefrac[:] = (port1.molefrac[:] * port1.moleflow + port2.molefrac[:] * port2.moleflow) / port3.moleflow;
     port3.temperature = min({port1.temperature, port2.temperature});
@@ -1058,7 +1055,55 @@ package unitoperations
     port3.vapormoleflow = 0;
     port3.liquidmolefrac = zeros(NOC);
     port3.vapormolefrac = zeros(NOC);
-    port3.enthalpy = 0;
+    port3.enthalpy = 0; */
+      port3.moleflow = port1.moleflow + port2.moleflow;
+    port3.pressure = min({port1.pressure, port2.pressure});
+    port3.molefrac[:] = (port1.molefrac[:] * port1.moleflow + port2.molefrac[:] * port2.moleflow) / port3.moleflow;
+    port3.temperature = T;
+    port3.molefrac = z;
+    port3.pressure = P;
+    port3.moleflow = F;
+    H = port1.enthalpy +  port2.enthalpy;
+    for i in 1:NOC loop
+     Psat_Tb[i] = Functions.Psat(comp[i].VP, Tb);
+     Psat_Td[i] = Functions.Psat(comp[i].VP, Td);
+     Hl_Tb[i] = Functions.HLiqId(comp[i].VapCp, comp[i].HOV, comp[i].Tc, Tb);
+     Hv_Td[i] = Functions.HVapId(comp[i].VapCp, comp[i].HOV, comp[i].Tc, Td);
+    end for;
+    sum(P * z[:] ./ Psat_Td[:]) = 1;
+    sum(Psat_Tb[:] ./ P .* z[:]) = 1;
+    H_Tb = F * sum(z[:] .* Hl_Tb[:]);
+    H_Td = F * sum(z[:] .* Hv_Td[:]);
+    if H <= H_Tb then
+    k = zeros(NOC);
+    zl = z;
+    zv = zeros(NOC);
+    F = Fl;
+    Fv = 0;
+    H = Fl * sum(zl[:] .* Hl[:]);
+    elseif H >= H_Td then
+    k = zeros(NOC);
+    zl = zeros(NOC);
+    zv = z;
+    Fl = 0;
+    Fv = F;
+    H = Fv * sum(zv[:] .* Hv[:]);
+    else 
+    sum(zl[:]) = 1;
+    sum(zv[:]) = 1;
+    zv[:] = k[:] .* zl[:];
+    k[:] = Psat_T[:] ./ P;
+    F = Fl + Fv;
+    for i in 1:NOC - 1 loop
+      F * z[i] = Fl * zl[i] + Fv * zv[i];
+    end for;
+    H = Fl * sum(zl[:] .* Hl[:]) + Fv * sum(zv[:] .* Hv[:]);
+    end if;
+    for i in 1:NOC loop
+     Psat_T[i] = Functions.Psat(comp[i].VP, T);
+     Hl[i] = Functions.HLiqId(comp[i].VapCp, comp[i].HOV, comp[i].Tc, T);
+     Hv[i] = Functions.HVapId(comp[i].VapCp, comp[i].HOV, comp[i].Tc, T);
+    end for;
     annotation(Icon(graphics = {Polygon(origin = {-0.28, 0}, fillColor = {170, 170, 255}, fillPattern = FillPattern.Solid, points = {{-99.7236, 100}, {100.276, 0}, {-99.7236, -100}, {-99.7236, 100}}), Text(origin = {-1, -107}, extent = {{-81, 19}, {85, -27}}, textString = "Mixer")}, coordinateSystem(extent = {{-100, -140}, {100, 100}})), Diagram(coordinateSystem(extent = {{-100, -140}, {100, 100}})), version = "", uses);
   end Mixer;
 end unitoperations;
