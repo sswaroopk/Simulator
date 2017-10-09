@@ -28,51 +28,6 @@ package Functions
     Cp := (VapCp[2] + exp(VapCp[3] / T + VapCp[4] + VapCp[5] * T + VapCp[6] * T ^ 2)) / 1000;
   end VapCpId;
 
-  function HVapId
-    /* Calculates enthalpy of ideal vapor */
-  //  input Real IGHF(unit = "J/kmol") "from chemsep database std. Heat of formation";
-    input Real VapCp[6] "from chemsep database";
-    input Real HOV[6] "from chemsep database";
-    input Real Tc "critical temp, from chemsep database";
-    input Real T(unit = "K") "Temperature";
-    output Real Ent1(unit = "J/mol") "Molar Enthalpy";
-  protected
-    Real Temp, Ent;// = 298.15;
-  algorithm
-    //Ent := 0;
-    Temp := 298.15;
-    if T > 298.15 then
-      while Temp < T loop
-        Ent := Ent + VapCpId(VapCp, Temp) * 1;
-        Temp := Temp + 1;
-      end while;
-      
-      Ent1 := Ent;
-    else
-      while Temp > T loop
-        Ent := Ent + VapCpId(VapCp, Temp) * 1;
-        Temp := Temp - 1;
-      end while;
-      Ent1 :=  -Ent;
-    end if;
-  end HVapId;
-
-  function HLiqId
-    /* Calculates Enthalpy of Ideal Liquid*/
-    //    input Real IGHF(unit = "J/kmol") "from chemsep database std. Heat of formation";
-    input Real VapCp[6] "from chemsep database";
-    input Real HOV[6] "from chemsep database";
-    input Real Tc "critical temp, from chemsep database";
-    input Real T(unit = "K") "Temperature";
-    output Real Ent(unit = "J/mol") "Molar Enthalpy";
-  algorithm
-    if T < Tc then
-      Ent := Functions.HVapId(VapCp, HOV, Tc, T) - HV(HOV, Tc, T);
-    else
-      Ent := Functions.HVapId(VapCp, HOV, Tc, T);
-    end if;
-  end HLiqId;
-
   function HV
     input Real HOV[6];
     input Real Tc;
@@ -101,9 +56,8 @@ package Functions
     Cp := (LiqCp[2] + exp(LiqCp[3] / T + LiqCp[4] + LiqCp[5] * T + LiqCp[6] * T ^ 2)) / 1000;
   end LiqCpId;
 
-  function HVapId1
+  function HVapId
     /* Calculates enthalpy of ideal vapor */
-    //input Real SH(unit = "J/kmol") "from chemsep database std. Heat of formation";
     input Real VapCp[6] "from chemsep database";
     input Real HOV[6] "from chemsep database";
     input Real Tc "critical temp, from chemsep database";
@@ -121,5 +75,67 @@ package Functions
     else
       Ent := -(T - 298.15) * (VapCpId(VapCp, T) / 2 + sum(Cp[:]) + VapCpId(VapCp, 298.15) / 2) / n;
     end if;
-  end HVapId1;
+  end HVapId;
+
+function HVapId1
+  /* Calculates enthalpy of ideal vapor */
+  input Real VapCp[6] "from chemsep database";
+  input Real HOV[6] "from chemsep database";
+  input Real Tc "critical temp, from chemsep database";
+  input Real T(unit = "K") "Temperature";
+  output Real Ent1(unit = "J/mol") "Molar Enthalpy";
+protected
+  Real Temp, Ent;// = 298.15;
+algorithm
+  Ent := 0.001;
+  Temp := 298.15;
+  if T > 298.15 then
+    while Temp < T loop
+      Ent := Ent + VapCpId(VapCp, Temp) * 1;
+      Temp := Temp + 1;
+    end while;
+    
+    Ent1 := Ent;
+  else
+    while Temp > T loop
+      Ent := Ent + VapCpId(VapCp, Temp) * 1;
+      Temp := Temp - 1;
+    end while;
+    Ent1 :=  -Ent;
+  end if;
+end HVapId1;
+
+  function HLiqId1
+    /* Calculates Enthalpy of Ideal Liquid*/
+    //    input Real IGHF(unit = "J/kmol") "from chemsep database std. Heat of formation";
+    input Real VapCp[6] "from chemsep database";
+    input Real HOV[6] "from chemsep database";
+    input Real Tc "critical temp, from chemsep database";
+    input Real T(unit = "K") "Temperature";
+    output Real Ent(unit = "J/mol") "Molar Enthalpy";
+  algorithm
+    Ent := 0.001;
+    if T < Tc then
+      Ent := Functions.HVapId1(VapCp, HOV, Tc, T) - HV(HOV, Tc, T);
+    else
+      Ent := Functions.HVapId1(VapCp, HOV, Tc, T);
+    end if;
+  end HLiqId1;
+
+  function HLiqId
+    /* Calculates Enthalpy of Ideal Liquid*/
+    //    input Real IGHF(unit = "J/kmol") "from chemsep database std. Heat of formation";
+    input Real VapCp[6] "from chemsep database";
+    input Real HOV[6] "from chemsep database";
+    input Real Tc "critical temp, from chemsep database";
+    input Real T(unit = "K") "Temperature";
+    output Real Ent(unit = "J/mol") "Molar Enthalpy";
+  algorithm
+    Ent := 0.001;
+    if T < Tc then
+      Ent := Functions.HVapId(VapCp, HOV, Tc, T) - HV(HOV, Tc, T);
+    else
+      Ent := Functions.HVapId(VapCp, HOV, Tc, T);
+    end if;
+  end HLiqId;
 end Functions;
