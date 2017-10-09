@@ -386,7 +386,7 @@ package unitoperations
     parameter Integer NOC = 2 "No. of compounds" annotation(Dialog(tab = "General", group = "compounds"));
     parameter Integer N_Feed = 10 "Feed tray location" annotation(Dialog(tab = "General", group = "Trays"));
     parameter Real M_eff = 0.99 "Murfy's efficiency of trays" annotation(Dialog(tab = "General", group = "Efficiency"), each HideResult = true);
-    parameter Real Pressure_drop(unit = "atm") = 0.1 "Pressure Drop per tray" annotation(Dialog(tab = "General", group = "Pressure Profile"));
+    parameter Real Pressure_drop(unit = "atm") = 0.007 "Pressure Drop per tray" annotation(Dialog(tab = "General", group = "Pressure Profile"));
     parameter Real P_condenser(unit = "atm") = 1 "Pressure in Condensor" annotation(Dialog(tab = "General", group = "Pressure Profile"));
     constant Real R = 8.314 "Gas Constant";
     parameter Real Active_area(unit = "m2") = 1 "Active area of Tray" annotation(Dialog(tab = "dynamic", group = "Tray data"));
