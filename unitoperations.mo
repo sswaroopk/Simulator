@@ -71,7 +71,7 @@ package unitoperations
     port2.liquidmolefrac[:] = port1.liquidmolefrac[:];
     port2.vapormolefrac[:] = port1.vapormolefrac[:];
     port2.enthalpy = port1.enthalpy;
-    annotation(Icon(graphics = {Polygon(origin = {-48.26, -2.99}, fillColor = {85, 170, 255}, fillPattern = FillPattern.Solid, points = {{-47.7381, 48.9887}, {-47.7381, -49.0113}, {48.2619, 2.98874}, {48.2619, 2.98874}, {-47.7381, 48.9887}}), Polygon(origin = {49.25, -4.98}, fillColor = {85, 170, 255}, fillPattern = FillPattern.Solid, points = {{-47.2509, 4.98071}, {46.7491, 48.9807}, {46.7491, -49.0193}, {-47.2509, 4.98071}}), Rectangle(origin = {1, 35}, fillColor = {85, 170, 255}, fillPattern = FillPattern.Solid, extent = {{-15, 35}, {15, -35}})}, coordinateSystem(initialScale = 0.1)));
+    annotation(Icon(graphics = {Polygon(origin = {-48.26, -2.99}, fillColor = {170, 170, 255}, fillPattern = FillPattern.Solid, points = {{-47.7381, 48.9887}, {-47.7381, -49.0113}, {48.2619, 2.98874}, {48.2619, 2.98874}, {-47.7381, 48.9887}}), Polygon(origin = {49.25, -4.98}, fillColor = {170, 170, 255}, fillPattern = FillPattern.Solid, points = {{-47.2509, 4.98071}, {46.7491, 48.9807}, {46.7491, -49.0193}, {-47.2509, 4.98071}}), Rectangle(origin = {1, 35}, fillColor = {170, 170, 255}, fillPattern = FillPattern.Solid, extent = {{-15, 35}, {15, -35}})}, coordinateSystem(initialScale = 0.1)));
   end valve;
 
   model MaterialStream
@@ -258,7 +258,7 @@ package unitoperations
     port3.temperature = T;
     port3.pressure = P;
     port3.molefrac[:] = x[:];
-    annotation(Icon(coordinateSystem(initialScale = 0.1), graphics = {Polygon(origin = {1, -1}, fillColor = {170, 170, 255}, fillPattern = FillPattern.Solid, points = {{-95, 65}, {-95, -59}, {-81, -73}, {-55, -79}, {-31, -81}, {-7, -83}, {23, -83}, {53, -79}, {81, -69}, {95, -59}, {95, 65}, {75, 77}, {43, 83}, {-1, 83}, {-47, 83}, {-81, 75}, {-95, 65}}), Line(origin = {4.06, 27.01}, points = {{-2.06154, 70.9903}, {-2.06154, -53.0097}, {-16.0615, -43.0097}, {-30.0615, -41.0097}, {-44.0615, -43.0097}, {-52.0615, -49.0097}, {-58.0615, -59.0097}, {-52.0615, -69.0097}, {-32.0615, -73.0097}, {-18.0615, -67.0097}, {-2.06154, -53.0097}, {7.93846, -45.0097}, {13.9385, -41.0097}, {27.9385, -41.0097}, {45.9385, -43.0097}, {53.9385, -51.0097}, {55.9385, -61.0097}, {41.9385, -69.0097}, {27.9385, -71.0097}, {17.9385, -69.0097}, {7.93846, -61.0097}, {-2.06154, -55.0097}}, thickness = 1)}), Diagram);
+    annotation(Icon(coordinateSystem(extent = {{-100, -120}, {100, 100}}), graphics = {Polygon(origin = {1, -1}, fillColor = {170, 170, 255}, fillPattern = FillPattern.Solid, points = {{-95, 65}, {-95, -59}, {-81, -73}, {-55, -79}, {-33, -83}, {-7, -83}, {23, -83}, {53, -79}, {81, -69}, {95, -59}, {95, 65}, {75, 77}, {43, 83}, {-1, 83}, {-47, 83}, {-81, 75}, {-95, 65}}), Line(origin = {4.06, 27.01}, points = {{-2.06154, 70.9903}, {-2.06154, -53.0097}, {-16.0615, -43.0097}, {-30.0615, -41.0097}, {-44.0615, -43.0097}, {-52.0615, -49.0097}, {-58.0615, -59.0097}, {-52.0615, -69.0097}, {-32.0615, -73.0097}, {-18.0615, -67.0097}, {-2.06154, -53.0097}, {7.93846, -45.0097}, {13.9385, -41.0097}, {27.9385, -41.0097}, {45.9385, -43.0097}, {53.9385, -51.0097}, {55.9385, -61.0097}, {41.9385, -69.0097}, {27.9385, -71.0097}, {17.9385, -69.0097}, {7.93846, -61.0097}, {-2.06154, -55.0097}}, thickness = 1), Text(origin = {-2, -98}, extent = {{-70, 16}, {76, -24}}, textString = "CSTR")}), Diagram(coordinateSystem(extent = {{-100, -120}, {100, 100}})), version = "", uses);
   end CSTR;
 
   model Flash
@@ -356,7 +356,7 @@ package unitoperations
     port2.moleflow = port1.moleflow;
     port2.molefrac[:] = port1.molefrac[:];
     Hin = Hout + Q;
-    annotation(Icon(coordinateSystem(initialScale = 0.1), graphics = {Ellipse(fillColor = {170, 170, 255}, fillPattern = FillPattern.Solid, extent = {{-100, 100}, {100, -100}}, endAngle = 360), Line(origin = {-1, 7.01}, points = {{-87, -7.00598}, {-37, -7.00598}, {-9, 30.994}, {13, -39.006}, {31, -3.00598}, {87, -3.00598}}, thickness = 1)}));
+    annotation(Icon(coordinateSystem(extent = {{-100, -140}, {100, 100}}), graphics = {Ellipse(fillColor = {170, 170, 255}, fillPattern = FillPattern.Solid, extent = {{-100, 100}, {100, -100}}, endAngle = 360), Line(origin = {-1, 7.01}, points = {{-87, -7.00598}, {-37, -7.00598}, {-9, 30.994}, {13, -39.006}, {31, -3.00598}, {87, -3.00598}}, thickness = 1), Text(origin = {-25, -106}, extent = {{-49, 16}, {93, -48}}, textString = "HX")}), Diagram(coordinateSystem(extent = {{-100, -140}, {100, 100}})), version = "", uses);
   end HeatExchanger;
 
   model CompoundSeperator
@@ -421,9 +421,9 @@ package unitoperations
     Real hv[N_Trays, NOC](each unit = "J/mol", each nominal = 1e3) annotation(each HideResult = true), hl[N_Trays, NOC](each unit = "J/mol", each nominal = 1e4) annotation(each HideResult = true), hf[N_Trays, NOC](each unit = "J/mol") annotation(each HideResult = true), hv_B[NOC](each unit = "J/mol") annotation(each HideResult = true), hl_B[NOC](each unit = "J/mol") annotation(each HideResult = true), hl_C[NOC](each unit = "J/mol") annotation(each HideResult = true);
     Real P[N_Trays](each unit = "Pa"), Ks[N_Trays] annotation(each HideResult = true);
     Real F[N_Trays](each start = 0) annotation(each HideResult = true), z[N_Trays, NOC](start = fill(0.5, N_Trays, NOC)) annotation(each HideResult = true);
-    port port1 annotation(Placement(visible = true, transformation(origin = {-82, 2}, extent = {{-18, -18}, {18, 18}}, rotation = 0), iconTransformation(origin = {-88, 2}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
-    port port2 annotation(Placement(visible = true, transformation(origin = {92, 88}, extent = {{-10, -10}, {10, 10}}, rotation = 0), iconTransformation(origin = {92, 88}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
-    port port3 annotation(Placement(visible = true, transformation(origin = {90, -88}, extent = {{-10, -10}, {10, 10}}, rotation = 0), iconTransformation(origin = {90, -88}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
+    unitoperations.port port1 annotation(Placement(visible = true, transformation(origin = {-54, 0}, extent = {{-18, -18}, {18, 18}}, rotation = 0), iconTransformation(origin = {-56, 2}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
+    unitoperations.port port2 annotation(Placement(visible = true, transformation(origin = {60, 82}, extent = {{-10, -10}, {10, 10}}, rotation = 0), iconTransformation(origin = {50, 64}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
+    unitoperations.port port3 annotation(Placement(visible = true, transformation(origin = {62, -80}, extent = {{-10, -10}, {10, 10}}, rotation = 0), iconTransformation(origin = {50, -62}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
   initial equation
 /*sizing*/
     if Override_Sizing_Calculations == false then
@@ -542,7 +542,7 @@ package unitoperations
     else
       TB = specification2_value;
     end if;
-    annotation(Icon(graphics = {Rectangle(origin = {-2, -1}, fillColor = {0, 85, 127}, fillPattern = FillPattern.VerticalCylinder, extent = {{-94, 95}, {94, -95}})}), Documentation(info = "<HTML> <p> This is a generalized model for distilation column </p> </HTML>"));
+    annotation(Icon(coordinateSystem(extent = {{-70, -140}, {70, 100}}, preserveAspectRatio = false), graphics = {Polygon(origin = {-1, 2}, fillColor = {170, 170, 255}, fillPattern = FillPattern.Solid, points = {{-63, -62.0013}, {-51, -78.0013}, {-33, -86.0013}, {-13, -90.0013}, {15, -90.0013}, {39, -84.0013}, {55, -76.0013}, {63, -62.0013}, {63, 71.9987}, {45, 81.9987}, {29, 87.9987}, {17, 89.9987}, {-15, 89.9987}, {-33, 85.9987}, {-49, 79.9987}, {-63, 69.9987}, {-63, -62.0013}}), Line(origin = {8, 55}, points = {{-54, 5}, {-54, -5}, {54, -5}}), Line(origin = {-10, 36}, points = {{-54, -4}, {54, -4}, {54, 4}}), Line(origin = {3, 14}, points = {{-59, 6}, {-59, -6}, {59, -6}}), Line(origin = {-9, -9}, points = {{-55, -5}, {53, -5}, {53, 5}}), Line(origin = {6, -35}, points = {{-58, 5}, {-58, -5}, {56, -5}}), Text(origin = {1, -102}, extent = {{-49, 18}, {57, -28}}, textString = "Distillation")}), Diagram(coordinateSystem(extent = {{-70, -140}, {70, 100}}, preserveAspectRatio = false)), version = "", uses, Documentation(info = "<HTML> <p> This is a generalized model for distilation column </p> </HTML>"));
   end Distillation;
 
   model Distillation1
@@ -942,7 +942,7 @@ package unitoperations
     port2.temperature = Ti;
     port2.molefrac[:] = y[:];
 //port3.pressure = P;
-    annotation(Icon(coordinateSystem(extent = {{-70, -100}, {70, 100}}, initialScale = 0.1), graphics = {Polygon(origin = {-1, 2}, fillColor = {170, 170, 255}, fillPattern = FillPattern.Solid, points = {{-63, -62.0013}, {-51, -78.0013}, {-33, -86.0013}, {-13, -90.0013}, {15, -90.0013}, {39, -84.0013}, {55, -76.0013}, {63, -62.0013}, {63, 71.9987}, {45, 81.9987}, {29, 87.9987}, {17, 89.9987}, {-15, 89.9987}, {-33, 85.9987}, {-49, 79.9987}, {-63, 69.9987}, {-63, -62.0013}}), Line(origin = {-1.01, -25.28}, points = {{-62.9906, -4.72122}, {-52.9906, 3.27878}, {-42.9906, -4.72122}, {-32.9906, 3.27878}, {-24.9906, -4.72122}, {-8.99059, 5.27878}, {5.00941, -4.72122}, {21.0094, 5.27878}, {33.0094, -4.72122}, {45.0094, 5.27878}, {59.0094, -4.72122}, {63.0094, 1.27878}}, smooth = Smooth.Bezier)}), Diagram(coordinateSystem(extent = {{-70, -100}, {70, 100}})), version = "", uses);
+    annotation(Icon(coordinateSystem(extent = {{-70, -140}, {70, 100}}, preserveAspectRatio = false), graphics = {Polygon(origin = {-1, 2}, fillColor = {170, 170, 255}, fillPattern = FillPattern.Solid, points = {{-63, -62.0013}, {-51, -78.0013}, {-33, -86.0013}, {-13, -90.0013}, {15, -90.0013}, {39, -84.0013}, {55, -76.0013}, {63, -62.0013}, {63, 71.9987}, {45, 81.9987}, {29, 87.9987}, {17, 89.9987}, {-15, 89.9987}, {-33, 85.9987}, {-49, 79.9987}, {-63, 69.9987}, {-63, -62.0013}}), Line(origin = {-1.01, -25.28}, points = {{-62.9906, -4.72122}, {-52.9906, 3.27878}, {-42.9906, -4.72122}, {-32.9906, 3.27878}, {-24.9906, -4.72122}, {-8.99059, 5.27878}, {5.00941, -4.72122}, {21.0094, 5.27878}, {33.0094, -4.72122}, {45.0094, 5.27878}, {59.0094, -4.72122}, {63.0094, 1.27878}}, smooth = Smooth.Bezier), Text(origin = {1, -113}, extent = {{-59, 21}, {59, -21}}, textString = "Flash")}), Diagram(coordinateSystem(extent = {{-70, -140}, {70, 100}}, preserveAspectRatio = false)), version = "", uses);
   end FlashWithSizing;
 
   model Pump
@@ -960,7 +960,7 @@ package unitoperations
     port1.liquidmolefrac = port2.liquidmolefrac;
     port1.vapormolefrac = port2.vapormolefrac;
     port1.enthalpy = port2.enthalpy;
-    annotation(Icon(graphics = {Ellipse(origin = {-3, 3}, fillColor = {170, 170, 255}, fillPattern = FillPattern.Solid, extent = {{-57, 61}, {57, -61}}, endAngle = 360), Polygon(origin = {3.92, -58}, fillColor = {170, 170, 255}, fillPattern = FillPattern.Solid, points = {{-45.9243, 16}, {-71.9243, -16}, {58.0757, -16}, {32.0757, 16}, {-45.9243, 16}}), Rectangle(origin = {-51, 0}, fillColor = {170, 170, 255}, fillPattern = FillPattern.Solid, extent = {{-49, 16}, {49, -16}}), Polygon(origin = {59.21, 48}, fillColor = {170, 170, 255}, fillPattern = FillPattern.Solid, points = {{-39.2094, 12}, {-25.2094, 2}, {-13.2094, -12}, {38.7906, -12}, {38.7906, 12}, {-39.2094, 12}})}));
+    annotation(Icon(graphics = {Ellipse(origin = {-3, 3}, fillColor = {170, 170, 255}, fillPattern = FillPattern.Solid, extent = {{-57, 61}, {57, -61}}, endAngle = 360), Polygon(origin = {3.92, -58}, fillColor = {170, 170, 255}, fillPattern = FillPattern.Solid, points = {{-45.9243, 16}, {-71.9243, -16}, {58.0757, -16}, {32.0757, 16}, {-45.9243, 16}}), Rectangle(origin = {-51, 0}, fillColor = {170, 170, 255}, fillPattern = FillPattern.Solid, extent = {{-49, 16}, {49, -16}}), Polygon(origin = {59.21, 48}, fillColor = {170, 170, 255}, fillPattern = FillPattern.Solid, points = {{-39.2094, 12}, {-25.2094, 2}, {-13.2094, -12}, {38.7906, -12}, {38.7906, 12}, {-39.2094, 12}}), Text(origin = {3, -102}, extent = {{-75, 18}, {77, -26}}, textString = "Pump")}, coordinateSystem(extent = {{-100, -140}, {100, 100}})), Diagram(coordinateSystem(extent = {{-100, -140}, {100, 100}})), version = "", uses);
   end Pump;
 
   model PhFlashWithSizing
@@ -976,10 +976,10 @@ package unitoperations
     Real z[NOC];
     Real y[NOC], x[NOC](start = {0.5, 1e-15, 0.5, 0}, each min = 0), k[NOC], L(unit = "mol/s", start = 0.5, min = 0), V(unit = "mol/s", start = 0.5, min = 0), Psat_T[NOC](each unit = "Pa"), M[NOC](each unit = "mol"), M_Total(unit = "mol"), ML(unit = "mol", start = 50), MG(unit = "mol", start = 0.5), VL(unit = "m3"), VG(unit = "m3"), Q(unit = "J/s"), hv[NOC](each unit = "J/mol"), hl[NOC](each unit = "J/mol"), Hf(unit = "J/s"), Hv(unit = "J/s"), Hl(unit = "J/s"), H_M_Total(unit = "J"), F(unit = "mol/s"), densityi[NOC](each unit = "kmol/m3"), P(unit = "Pa"), h(unit = "m"), Ti(unit = "K", start = 290);
     unitoperations.sensor sensor1 annotation(Placement(visible = true, transformation(origin = {2, 82}, extent = {{-16, -16}, {16, 16}}, rotation = 0), iconTransformation(origin = {8.88178e-16, 82}, extent = {{-16, -16}, {16, 16}}, rotation = 0)));
-    unitoperations.sensor sensor3 annotation(Placement(visible = true, transformation(origin = {82, -32}, extent = {{-16, -16}, {16, 16}}, rotation = 0), iconTransformation(origin = {77, -31}, extent = {{-19, -19}, {19, 19}}, rotation = 0)));
-    unitoperations.port port1 annotation(Placement(visible = true, transformation(origin = {1, -83}, extent = {{-17, -17}, {17, 17}}, rotation = 0), iconTransformation(origin = {-8.88178e-16, -86}, extent = {{-18, -18}, {18, 18}}, rotation = 0)));
-    unitoperations.port port2 annotation(Placement(visible = true, transformation(origin = {80, 48}, extent = {{-16, -16}, {16, 16}}, rotation = 0), iconTransformation(origin = {76, 52}, extent = {{-16, -16}, {16, 16}}, rotation = 0)));
-    unitoperations.port port3 annotation(Placement(visible = true, transformation(origin = {-84, 0}, extent = {{-18, -18}, {18, 18}}, rotation = 0), iconTransformation(origin = {-80, 4}, extent = {{-20, -20}, {20, 20}}, rotation = 0)));
+    unitoperations.sensor sensor3 annotation(Placement(visible = true, transformation(origin = {58, -2}, extent = {{-16, -16}, {16, 16}}, rotation = 0), iconTransformation(origin = {48, 4}, extent = {{-16, -16}, {16, 16}}, rotation = 0)));
+    unitoperations.port port1 annotation(Placement(visible = true, transformation(origin = {45, -59}, extent = {{-17, -17}, {17, 17}}, rotation = 0), iconTransformation(origin = {48, -62}, extent = {{-18, -18}, {18, 18}}, rotation = 0)));
+    unitoperations.port port2 annotation(Placement(visible = true, transformation(origin = {56, 64}, extent = {{-16, -16}, {16, 16}}, rotation = 0), iconTransformation(origin = {52, 68}, extent = {{-16, -16}, {16, 16}}, rotation = 0)));
+    unitoperations.port port3 annotation(Placement(visible = true, transformation(origin = {-50, 0}, extent = {{-18, -18}, {18, 18}}, rotation = 0), iconTransformation(origin = {-55, 7}, extent = {{-17, -17}, {17, 17}}, rotation = 0)));
   initial equation
     h = hset;
     P = Pset * 101325;
@@ -1047,14 +1047,14 @@ package unitoperations
     port2.pressure = P;
     port2.temperature = Ti;
     port2.molefrac[:] = y[:];
-    annotation(Icon(graphics = {Rectangle(origin = {1, -1}, fillColor = {170, 170, 255}, fillPattern = FillPattern.VerticalCylinder, extent = {{-93, 83}, {93, -79}}), Polygon(origin = {-1.14, -89}, fillColor = {170, 170, 255}, fillPattern = FillPattern.Solid, points = {{-92.8574, 9}, {-80.8574, -5}, {-40.8574, -9}, {-0.857422, -9}, {43.1426, -9}, {67.1426, -5}, {93.1426, 9}, {-92.8574, 9}}), Text(origin = {-32, -78}, extent = {{-10, 20}, {10, -20}}, textString = "L"), Text(origin = {-53, -3}, extent = {{-11, 21}, {11, -21}}, textString = "F"), Text(origin = {51, 46}, extent = {{-11, 16}, {11, -16}}, textString = "V"), Text(origin = {-8, 53}, extent = {{-14, 15}, {14, -15}}, textString = "P"), Text(origin = {45, -31}, extent = {{-15, 17}, {15, -17}}, textString = "h")}, coordinateSystem(initialScale = 0.1)), Diagram, version = "", uses);
+    annotation(Icon(coordinateSystem(extent = {{-70, -140}, {70, 100}}, preserveAspectRatio = false), graphics = {Polygon(origin = {-1, 2}, fillColor = {170, 170, 255}, fillPattern = FillPattern.Solid, points = {{-63, -62.0013}, {-51, -78.0013}, {-33, -86.0013}, {-13, -90.0013}, {15, -90.0013}, {39, -84.0013}, {55, -76.0013}, {63, -62.0013}, {63, 71.9987}, {45, 81.9987}, {29, 87.9987}, {17, 89.9987}, {-15, 89.9987}, {-33, 85.9987}, {-49, 79.9987}, {-63, 69.9987}, {-63, -62.0013}}), Line(origin = {-1.01, -25.28}, points = {{-62.9906, -4.72122}, {-52.9906, 3.27878}, {-42.9906, -4.72122}, {-32.9906, 3.27878}, {-24.9906, -4.72122}, {-8.99059, 5.27878}, {5.00941, -4.72122}, {21.0094, 5.27878}, {33.0094, -4.72122}, {45.0094, 5.27878}, {59.0094, -4.72122}, {63.0094, 1.27878}}, smooth = Smooth.Bezier), Text(origin = {-4, -113}, extent = {{-60, 23}, {60, -23}}, textString = "Flash")}), Diagram(coordinateSystem(extent = {{-70, -140}, {70, 100}}, preserveAspectRatio = false)), version = "", uses);
   end PhFlashWithSizing;
 
   model Mixer
     extends compounds;
-    unitoperations.port port1 annotation(Placement(visible = true, transformation(origin = {-90, 90}, extent = {{-10, -10}, {10, 10}}, rotation = 0), iconTransformation(origin = {-90, 90}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
-    port port2 annotation(Placement(visible = true, transformation(origin = {-90, -92}, extent = {{-10, -10}, {10, 10}}, rotation = 0), iconTransformation(origin = {-90, -92}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
-    port port3 annotation(Placement(visible = true, transformation(origin = {90, 0}, extent = {{-10, -10}, {10, 10}}, rotation = 0), iconTransformation(origin = {90, 0}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
+    unitoperations.port port1 annotation(Placement(visible = true, transformation(origin = {-90, 90}, extent = {{-10, -10}, {10, 10}}, rotation = 0), iconTransformation(origin = {-87, 79}, extent = {{-21, -21}, {21, 21}}, rotation = 0)));
+    unitoperations.port port2 annotation(Placement(visible = true, transformation(origin = {-90, -92}, extent = {{-10, -10}, {10, 10}}, rotation = 0), iconTransformation(origin = {-87,-81}, extent = {{-19, -19}, {19, 19}}, rotation = 0)));
+    unitoperations.port port3 annotation(Placement(visible = true, transformation(origin = {90, 0}, extent = {{-10, -10}, {10, 10}}, rotation = 0), iconTransformation(origin = {88, 0}, extent = {{-20, -20}, {20, 20}}, rotation = 0)));
   equation
 /*Real moleflow;
   Real pressure;
@@ -1072,6 +1072,6 @@ package unitoperations
     port3.liquidmolefrac = zeros(NOC);
     port3.vapormolefrac = zeros(NOC);
     port3.enthalpy = 0;
-    annotation(Icon(graphics = {Polygon(origin = {-0.28, 0}, fillColor = {170, 170, 255}, fillPattern = FillPattern.Solid, points = {{-99.7236, 100}, {100.276, 0}, {-99.7236, -100}, {-99.7236, 100}})}));
+    annotation(Icon(graphics = {Polygon(origin = {-0.28, 0}, fillColor = {170, 170, 255}, fillPattern = FillPattern.Solid, points = {{-99.7236, 100}, {100.276, 0}, {-99.7236, -100}, {-99.7236, 100}}), Text(origin = {-1, -107}, extent = {{-81, 19}, {85, -27}}, textString = "Mixer")}, coordinateSystem(extent = {{-100, -140}, {100, 100}})), Diagram(coordinateSystem(extent = {{-100, -140}, {100, 100}})), version = "", uses);
   end Mixer;
 end unitoperations;
