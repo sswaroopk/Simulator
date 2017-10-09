@@ -1,12 +1,4 @@
 package unitoperations
-  model parameters
-    constant Integer noc = 4;
-    constant Chemsep_Database.Toluene comp1;
-    constant Chemsep_Database.Hydrogen comp2;
-    constant Chemsep_Database.Benzene comp3;
-    constant Chemsep_Database.Methane comp4;
-    constant Chemsep_Database.General_Properties components[noc] = {comp1, comp2, comp3, comp4};
-  end parameters;
 
   model compounds
   protected
@@ -32,7 +24,7 @@ package unitoperations
     Real liquidmoleflow, vapormoleflow;
     Real liquidmolefrac[NOC], vapormolefrac[NOC];
     Real enthalpy;
-    annotation(Diagram(graphics = {Ellipse(origin = {-1, 1}, fillColor = {65, 252, 255}, fillPattern = FillPattern.Solid, extent = {{-67, 65}, {67, -65}}, endAngle = 360)}), Icon(graphics = {Ellipse(origin = {-4, -1}, fillColor = {81, 253, 248}, fillPattern = FillPattern.Solid, extent = {{-60, 61}, {60, -61}}, endAngle = 360)}));
+    annotation(Diagram(graphics = {Ellipse(origin = {-1, 1}, fillColor = {65, 252, 255}, fillPattern = FillPattern.Solid, extent = {{-67, 65}, {67, -65}}, endAngle = 360)}), Icon(graphics = {Ellipse(origin = {-4, -1}, fillColor = {170, 170, 255}, fillPattern = FillPattern.Sphere, extent = {{-60, 61}, {60, -61}}, endAngle = 360)}, coordinateSystem(initialScale = 0.1)));
   end port;
 
   model valve
@@ -383,7 +375,7 @@ package unitoperations
     port1.pressure = port2.pressure;
     port1.pressure = port3.pressure;
 //port1.pressure = P;
-    annotation(Icon(graphics = {Polygon(origin = {3.29, -3.99}, fillColor = {255, 170, 0}, fillPattern = FillPattern.CrossDiag, points = {{-91.2946, 7.98643}, {88.7054, 73.9864}, {90.7054, -74.0136}, {-91.2946, 7.98643}})}));
+    annotation(Icon(graphics = {Polygon(origin = {3.29, -3.99}, fillColor = {170, 170, 255}, fillPattern = FillPattern.CrossDiag, points = {{-91.2946, 7.98643}, {88.7054, 73.9864}, {90.7054, -74.0136}, {-91.2946, 7.98643}})}, coordinateSystem(initialScale = 0.1)));
   end CompoundSeperator;
 
   model Distillation
@@ -857,7 +849,7 @@ package unitoperations
     annotation(Icon(graphics = {Rectangle(origin = {-2, -1}, fillColor = {0, 85, 127}, fillPattern = FillPattern.VerticalCylinder, extent = {{-94, 95}, {94, -95}})}), Documentation(info = "<HTML> <p> This is a generalized model for distilation column </p> </HTML>"));
   end DistillationWithSizing;
 
-  model FlashWithSizing
+  model PTFlash
     parameter Real hset(unit = "m") = 0.7 annotation(Dialog(group = "Operating conditions")), Pset(unit = "atm") = 5 annotation(Dialog(group = "Operating conditions"));
     extends compounds;
     parameter Boolean connectedToInput = false;
@@ -942,8 +934,8 @@ package unitoperations
     port2.temperature = Ti;
     port2.molefrac[:] = y[:];
 //port3.pressure = P;
-    annotation(Icon(coordinateSystem(extent = {{-70, -140}, {70, 100}}, preserveAspectRatio = false), graphics = {Polygon(origin = {-1, 2}, fillColor = {170, 170, 255}, fillPattern = FillPattern.Solid, points = {{-63, -62.0013}, {-51, -78.0013}, {-33, -86.0013}, {-13, -90.0013}, {15, -90.0013}, {39, -84.0013}, {55, -76.0013}, {63, -62.0013}, {63, 71.9987}, {45, 81.9987}, {29, 87.9987}, {17, 89.9987}, {-15, 89.9987}, {-33, 85.9987}, {-49, 79.9987}, {-63, 69.9987}, {-63, -62.0013}}), Line(origin = {-1.01, -25.28}, points = {{-62.9906, -4.72122}, {-52.9906, 3.27878}, {-42.9906, -4.72122}, {-32.9906, 3.27878}, {-24.9906, -4.72122}, {-8.99059, 5.27878}, {5.00941, -4.72122}, {21.0094, 5.27878}, {33.0094, -4.72122}, {45.0094, 5.27878}, {59.0094, -4.72122}, {63.0094, 1.27878}}, smooth = Smooth.Bezier), Text(origin = {1, -113}, extent = {{-59, 21}, {59, -21}}, textString = "Flash")}), Diagram(coordinateSystem(extent = {{-70, -140}, {70, 100}}, preserveAspectRatio = false)), version = "", uses);
-  end FlashWithSizing;
+    annotation(Icon(coordinateSystem(extent = {{-70, -140}, {70, 100}}, preserveAspectRatio = false, initialScale = 0.1), graphics = {Polygon(origin = {-1, 2}, fillColor = {170, 170, 255}, fillPattern = FillPattern.Solid, points = {{-63, -62.0013}, {-51, -78.0013}, {-33, -86.0013}, {-13, -90.0013}, {15, -90.0013}, {39, -84.0013}, {55, -76.0013}, {63, -62.0013}, {63, 71.9987}, {45, 81.9987}, {29, 87.9987}, {17, 89.9987}, {-15, 89.9987}, {-33, 85.9987}, {-49, 79.9987}, {-63, 69.9987}, {-63, -62.0013}}), Line(origin = {-1.01, -25.28}, points = {{-62.9906, -4.72122}, {-52.9906, 3.27878}, {-42.9906, -4.72122}, {-32.9906, 3.27878}, {-24.9906, -4.72122}, {-8.99059, 5.27878}, {5.00941, -4.72122}, {21.0094, 5.27878}, {33.0094, -4.72122}, {45.0094, 5.27878}, {59.0094, -4.72122}, {63.0094, 1.27878}}, smooth = Smooth.Bezier), Text(origin = {1, -113}, extent = {{-59, 21}, {59, -21}}, textString = "PT Flash")}), Diagram(coordinateSystem(extent = {{-70, -140}, {70, 100}}, preserveAspectRatio = false)), version = "", uses);
+  end PTFlash;
 
   model Pump
     extends compounds;
@@ -955,15 +947,10 @@ package unitoperations
     port1.moleflow = port2.moleflow;
     port1.molefrac = port2.molefrac;
     port1.temperature = port2.temperature;
-    port1.liquidmoleflow = port2.liquidmoleflow;
-    port1.vapormoleflow = port2.vapormoleflow;
-    port1.liquidmolefrac = port2.liquidmolefrac;
-    port1.vapormolefrac = port2.vapormolefrac;
-    port1.enthalpy = port2.enthalpy;
     annotation(Icon(graphics = {Ellipse(origin = {-3, 3}, fillColor = {170, 170, 255}, fillPattern = FillPattern.Solid, extent = {{-57, 61}, {57, -61}}, endAngle = 360), Polygon(origin = {3.92, -58}, fillColor = {170, 170, 255}, fillPattern = FillPattern.Solid, points = {{-45.9243, 16}, {-71.9243, -16}, {58.0757, -16}, {32.0757, 16}, {-45.9243, 16}}), Rectangle(origin = {-51, 0}, fillColor = {170, 170, 255}, fillPattern = FillPattern.Solid, extent = {{-49, 16}, {49, -16}}), Polygon(origin = {59.21, 48}, fillColor = {170, 170, 255}, fillPattern = FillPattern.Solid, points = {{-39.2094, 12}, {-25.2094, 2}, {-13.2094, -12}, {38.7906, -12}, {38.7906, 12}, {-39.2094, 12}}), Text(origin = {3, -102}, extent = {{-75, 18}, {77, -26}}, textString = "Pump")}, coordinateSystem(extent = {{-100, -140}, {100, 100}})), Diagram(coordinateSystem(extent = {{-100, -140}, {100, 100}})), version = "", uses);
   end Pump;
 
-  model PhFlashWithSizing
+  model PHFlash
     parameter Real hset(unit = "m") = 3.7 annotation(Dialog(group = "Operating conditions")), Pset(unit = "atm") = 5 annotation(Dialog(group = "Operating conditions"));
     extends compounds;
     parameter Boolean connectedToInput = false;
@@ -1047,8 +1034,8 @@ package unitoperations
     port2.pressure = P;
     port2.temperature = Ti;
     port2.molefrac[:] = y[:];
-    annotation(Icon(coordinateSystem(extent = {{-70, -140}, {70, 100}}, preserveAspectRatio = false), graphics = {Polygon(origin = {-1, 2}, fillColor = {170, 170, 255}, fillPattern = FillPattern.Solid, points = {{-63, -62.0013}, {-51, -78.0013}, {-33, -86.0013}, {-13, -90.0013}, {15, -90.0013}, {39, -84.0013}, {55, -76.0013}, {63, -62.0013}, {63, 71.9987}, {45, 81.9987}, {29, 87.9987}, {17, 89.9987}, {-15, 89.9987}, {-33, 85.9987}, {-49, 79.9987}, {-63, 69.9987}, {-63, -62.0013}}), Line(origin = {-1.01, -25.28}, points = {{-62.9906, -4.72122}, {-52.9906, 3.27878}, {-42.9906, -4.72122}, {-32.9906, 3.27878}, {-24.9906, -4.72122}, {-8.99059, 5.27878}, {5.00941, -4.72122}, {21.0094, 5.27878}, {33.0094, -4.72122}, {45.0094, 5.27878}, {59.0094, -4.72122}, {63.0094, 1.27878}}, smooth = Smooth.Bezier), Text(origin = {-4, -113}, extent = {{-60, 23}, {60, -23}}, textString = "Flash")}), Diagram(coordinateSystem(extent = {{-70, -140}, {70, 100}}, preserveAspectRatio = false)), version = "", uses);
-  end PhFlashWithSizing;
+    annotation(Icon(coordinateSystem(extent = {{-70, -140}, {70, 100}}, preserveAspectRatio = false, initialScale = 0.1), graphics = {Polygon(origin = {-1, 2}, fillColor = {170, 170, 255}, fillPattern = FillPattern.Solid, points = {{-63, -62.0013}, {-51, -78.0013}, {-33, -86.0013}, {-13, -90.0013}, {15, -90.0013}, {39, -84.0013}, {55, -76.0013}, {63, -62.0013}, {63, 71.9987}, {45, 81.9987}, {29, 87.9987}, {17, 89.9987}, {-15, 89.9987}, {-33, 85.9987}, {-49, 79.9987}, {-63, 69.9987}, {-63, -62.0013}}), Line(origin = {-1.01, -25.28}, points = {{-62.9906, -4.72122}, {-52.9906, 3.27878}, {-42.9906, -4.72122}, {-32.9906, 3.27878}, {-24.9906, -4.72122}, {-8.99059, 5.27878}, {5.00941, -4.72122}, {21.0094, 5.27878}, {33.0094, -4.72122}, {45.0094, 5.27878}, {59.0094, -4.72122}, {63.0094, 1.27878}}, smooth = Smooth.Bezier), Text(origin = {-4, -113}, extent = {{-60, 23}, {60, -23}}, textString = "PH Flash")}), Diagram(coordinateSystem(extent = {{-70, -140}, {70, 100}}, preserveAspectRatio = false)), version = "", uses);
+  end PHFlash;
 
   model Mixer
     extends compounds;

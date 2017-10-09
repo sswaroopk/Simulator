@@ -881,4 +881,145 @@ end Distillationwithsizing;
   model DistillationNewRK
   extends DistillationPackage.Distillationwithsizingtest;
   end DistillationNewRK;
+
+  model Distillation1
+    parameter Chemsep_Database.Benzene comp1;
+    parameter Chemsep_Database.Toluene comp2;
+    parameter Chemsep_Database.General_Properties comp[2] = {comp1, comp2};
+    parameter Integer N_Trays = 20, NOC = 2, N_Feed = 10;
+    parameter Real M_eff[N_Trays, NOC] = fill(0.99, N_Trays, NOC);
+    parameter Real Pressure_drop = 2432, P_condenser = 101350, R = 8.314;
+    parameter Real A_active = 1, h_weir = 0.01, d_weir = 0.8, taul = 0.062, Tray_volume = 0.1;
+    parameter Real pi1 = -12.55, pi2 = 0.91;
+    Real y[N_Trays, NOC](start = fill(0.5, N_Trays, NOC)), x[N_Trays, NOC](start = fill(0.5, N_Trays, NOC)), y_eq[N_Trays, NOC], Tf[N_Trays];
+    Real V[N_Trays](each start = 70), L[N_Trays](each start = 100);
+    Real T[N_Trays](start = linspace(381, 369, N_Trays)), TC(start = 368), TB(start = 377), L0(start = 50), VNT, D, B, xc[NOC], xr[NOC], QC, QB;
+    Real Keq[N_Trays, NOC], Psat[N_Trays, NOC], PsatC[NOC], PsatB[NOC];
+    Real yNT[NOC], M[N_Trays](each start = 1), den[N_Trays, NOC];
+    Real hv[N_Trays, NOC], hl[N_Trays, NOC], hf[N_Trays, NOC], hv_B[NOC], hl_B[NOC], hl_C[NOC];
+    Real P[N_Trays], Ks[N_Trays];
+    Real dx[N_Trays, NOC], dM[N_Trays], dhl[N_Trays, NOC];
+    Real F[N_Trays](each start = 0), z[N_Trays, NOC](start = fill(0.5, N_Trays, NOC));
+    port port1 annotation(Placement(visible = true, transformation(origin = {-88, 2}, extent = {{-10, -10}, {10, 10}}, rotation = 0), iconTransformation(origin = {-88, 2}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
+    port port2 annotation(Placement(visible = true, transformation(origin = {92, 80}, extent = {{-10, -10}, {10, 10}}, rotation = 0), iconTransformation(origin = {92, 80}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
+    port port3 annotation(Placement(visible = true, transformation(origin = {94, -74}, extent = {{-10, -10}, {10, 10}}, rotation = 0), iconTransformation(origin = {94, -74}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
+  initial equation
+    for i in 1:N_Trays loop
+//M[i] = M0[i];
+      der(M[i]) = 0;
+//der(x[i,1]) = 0;
+//dM[i] = 0;
+      dhl[i, 1] = 0;
+//dx[i,1] = 0;
+    end for;
+  equation
+    port1.pressure = P[N_Feed];
+    for i in 1:N_Trays loop
+      if i == N_Feed then
+        F[i] = port1.moleflow;
+      else
+        F[i] = 0;
+      end if;
+      Tf[i] = port1.temperature;
+      z[i, 1] = port1.molefrac[3];
+      z[i, 2] = port1.molefrac[1];
+    end for;
+//functions required
+    for i in 1:NOC loop
+      for j in 1:N_Trays loop
+        Psat[j, i] = Functions.Psat(comp[i].VP, T[j]);
+        hv[j, i] = Functions.HVapId(comp[i].VapCp, comp[i].HOV, comp[i].Tc, T[j]);
+        hl[j, i] = Functions.HLiqId(comp[i].VapCp, comp[i].HOV, comp[i].Tc, T[j]);
+        hf[j, i] = Functions.HLiqId(comp[i].VapCp, comp[i].HOV, comp[i].Tc, Tf[j]);
+        den[j, i] = Functions.Density(comp[i].LiqDen, comp[i].Tc, T[j], P[j]);
+      end for;
+      hv_B[i] = Functions.HVapId(comp[i].VapCp, comp[i].HOV, comp[i].Tc, TB);
+      hl_B[i] = Functions.HLiqId(comp[i].VapCp, comp[i].HOV, comp[i].Tc, TB);
+      hl_C[i] = Functions.HLiqId(comp[i].VapCp, comp[i].HOV, comp[i].Tc, TC);
+      PsatC[i] = Functions.Psat(comp[i].VP, TC);
+      PsatB[i] = Functions.Psat(comp[i].VP, TB);
+    end for;
+    for i in 1:N_Trays loop
+      Ks[i] = V[i] * R * T[i] / (A_active * P[i] * 10 ^ (-3)) * (P[i] * 10 ^ (-3) / (R * T[i] * (sum(x[i, :] .* den[i, :]) - P[i] * 10 ^ (-3) / (R * T[i]))));
+    end for;
+//defining state variables!
+    for i in 1:N_Trays loop
+      dx[i, :] = der(x[i, :]);
+      dM[i] = der(M[i]);
+      dhl[i, :] = der(hl[i, :]);
+    end for;
+//tray mass balance
+    xr[:] = x[1, :];
+    yNT[:] = xr[:];
+    L[1] - VNT - B = 0;
+//when time>0 then
+    for i in 1:N_Trays loop
+      M[i] = A_active * sum(x[i, :] .* den[i, :]) * (exp(pi1 * Ks[i] ^ pi2) * h_weir + 44300 * 10 ^ (-3) * (L[i] / (sum(x[i, :] .* den[i, :]) * d_weir * 1000 * 3600)) ^ 0.704);
+    end for;
+//end when;
+    M[1] * dx[1, :] + x[1, :] * dM[1] = VNT .* yNT[:] + L[2] .* x[2, :] - V[1] .* y[1, :] - L[1] .* x[1, :] + F[1] .* z[1, :];
+//M0[1] = Tray_volume * sum(x[1,:].*den[1,:]);
+//L[1] = L0 + (M[1]-M0[1])/taul;
+//M[1] = A_active * sum(x[1,:].*den[1,:])*(exp(pi1*Ks[1]^pi2)*h_weir + 44300*(L[1]/(sum(x[1,:].*den[1,:]) * 0.5* d_weir))^0.704);
+    for i in 2:N_Trays - 1 loop
+      dM[i] * x[i, :] + dx[i, :] * M[i] = V[i - 1] .* y[i - 1, :] + L[i + 1] .* x[i + 1, :] - V[i] .* y[i, :] - L[i] .* x[i, :] + F[i] .* z[i, :];
+//L[i] = L0 + (M[i]-M0[i])/taul;
+//M0[i] = Tray_volume * sum(x[i,:].*den[i,:]);
+    end for;
+    M[N_Trays] * dx[N_Trays, :] + x[N_Trays, :] * dM[N_Trays] = V[N_Trays - 1] .* y[N_Trays - 1, :] + L0 .* xc[:] - V[N_Trays] .* y[N_Trays, :] - L[N_Trays] .* x[N_Trays, :] + F[N_Trays] .* z[N_Trays, :];
+//M0[N_Trays] = Tray_volume * sum(x[N_Trays,:].*den[N_Trays,:]);
+//L[N_Trays] = L0 + (M[N_Trays]-M0[N_Trays])/taul;
+//M[N_Trays] = A_active * sum(x[N_Trays,:].*den[N_Trays,:])*(exp(pi1*Ks[N_Trays]^pi2)*h_weir + 44300*(L[N_Trays]/(sum(x[N_Trays,:].*den[N_Trays,:]) * 0.5* d_weir))^0.704);
+    V[N_Trays] - L0 - D = 0;
+    y[N_Trays, :] = xc[:];
+//energy balance
+    VNT * sum(yNT[:] .* hv_B[:]) - V[1] * sum(y[1, :] .* hv[1, :]) + L[2] * sum(x[2, :] .* hl[2, :]) - L[1] * sum(x[1, :] .* hl[1, :]) + F[1] * sum(z[1, :] .* hf[1, :]) = M[1] * x[1, :] * dhl[1, :] + M[1] * dx[1, :] * hl[1, :] + dM[1] * x[1, :] * hl[1, :];
+    for i in 2:N_Trays - 1 loop
+      V[i - 1] * sum(y[i - 1, :] .* hv[i - 1, :]) - V[i] * sum(y[i, :] .* hv[i, :]) + L[i + 1] * sum(x[i + 1, :] .* hl[i + 1, :]) - L[i] * sum(x[i, :] .* hl[i, :]) + F[i] * sum(z[i, :] .* hf[i, :]) = M[i] * x[i, :] * dhl[i, :] + M[i] * dx[i, :] * hl[i, :] + dM[i] * x[i, :] * hl[i, :];
+    end for;
+    V[N_Trays - 1] * sum(y[N_Trays - 1, :] .* hv[N_Trays - 1, :]) - V[N_Trays] * sum(y[N_Trays, :] .* hv[N_Trays, :]) + L0 * sum(xc[:] .* hl_C[:]) - L[N_Trays] * sum(x[N_Trays, :] .* hl[N_Trays, :]) + F[N_Trays] * sum(z[N_Trays, :] .* hf[N_Trays, :]) = dM[N_Trays] * x[N_Trays, :] * hl[N_Trays, :] + M[N_Trays] * dx[N_Trays, :] * hl[N_Trays, :] + M[N_Trays] * x[N_Trays, :] * dhl[N_Trays, :];
+    V[N_Trays] * sum(y[N_Trays, :] .* hv[N_Trays, :]) - (L0 + D) * sum(xc[:] .* hl_C[:]) = QC;
+    L[1] * sum(x[1, :] .* hl[1, :]) - B * sum(xr[:] .* hl_B[:]) - VNT * sum(xr[:] .* hv_B[:]) = QB;
+//pressure
+    for i in 1:N_Trays loop
+      P[i] = P_condenser + (N_Trays - i + 1) * Pressure_drop;
+    end for;
+//Equilibrium
+    for i in 1:N_Trays loop
+      Keq[i, :] = Psat[i, :] ./ P[i];
+      y_eq[i, :] = Keq[i, :] .* x[i, :];
+      M_eff[i, :] = (y[i, :] - y[i - 1, :]) ./ (y_eq[i, :] - y[i - 1, :]);
+      sum(x[i, :]) = 1;
+      sum(y_eq[i, :]) = 1;
+    end for;
+    sum(y[N_Trays, :] .* PsatC[:] / P_condenser) = 1;
+//sum(xc[:]) =1
+    sum(x[1, :] .* (P[1] + Pressure_drop) ./ PsatB[:]) = 1;
+//sum(yNT[:]) =1;
+    D = 0.5 * L0;
+    B = 61.1;
+    port2.moleflow = D;
+    port2.molefrac = {xc[2], 0, xc[1], 0};
+    port2.temperature = TC;
+    port2.pressure = P_condenser;
+    port3.moleflow = B;
+    port3.molefrac = {xr[2], 0, xr[1], 0};
+    port3.temperature = TB;
+    port3.pressure = P_condenser + Pressure_drop * (N_Trays + 1);
+/*
+  Real liquidmoleflow, vapormoleflow;
+  Real liquidmolefrac[NOC], vapormolefrac[NOC];
+  Real enthalpy; */
+    port2.liquidmoleflow = 0;
+    port2.vapormoleflow = 0;
+    port2.liquidmolefrac = zeros(4);
+    port2.vapormolefrac = zeros(4);
+    port2.enthalpy = 0;
+    port3.liquidmoleflow = 0;
+    port3.vapormoleflow = 0;
+    port3.liquidmolefrac = zeros(4);
+    port3.vapormolefrac = zeros(4);
+    port3.enthalpy = 0;
+    annotation(Icon(graphics = {Rectangle(origin = {-2, -1}, fillColor = {0, 85, 127}, fillPattern = FillPattern.VerticalCylinder, extent = {{-94, 95}, {94, -95}})}));
+  end Distillation1;
 end DistillationPackage;
