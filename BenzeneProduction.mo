@@ -66,33 +66,33 @@ package BenzeneProduction
     annotation(Diagram(coordinateSystem(extent = {{-100, -100}, {200, 100}})), Icon(coordinateSystem(extent = {{-100, -100}, {200, 100}})), version = "", uses);end reactorAndFlash;
 
   model WithoutRecycle
-    unitoperations.MaterialStream materialStream1(Flowrate = 22, Pressure = 24, Temperature = 600, molefraction = {0.9, 0, 0.1, 0}, step_value = 2, stepchange = true, unspecified = false) annotation(Placement(visible = true, transformation(origin = {-82, -22}, extent = {{-12, -12}, {12, 12}}, rotation = 0)));
-    unitoperations.MaterialStream materialStream2(Flowrate = 66, Pressure = 24, Temperature = 600, molefraction = {0, 0.9, 0, 0.1}, unspecified = false) annotation(Placement(visible = true, transformation(origin = {-80, 42}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
-  unitoperations.CSTR cSTR1(Ab = 0, Af = 5.1e11, Eab = 0, Eaf = 230e3, T_iso = 700, V_Total = 1, operation_mode = unitoperations.CSTR.operation_type.Isothermal, order_b = {0, 0, 0, 0}, order_f = {1, 0.5, 0, 0}) annotation(Placement(visible = true, transformation(origin = {-30, -22}, extent = {{-18, -18}, {18, 18}}, rotation = 0)));
-  unitoperations.MaterialStream materialStream3 annotation(Placement(visible = true, transformation(origin = {46, -34}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
-  unitoperations.valve valve1(OutletPfixed = false) annotation(Placement(visible = true, transformation(origin = {14, -34}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
-  unitoperations.PTFlash PTFlash1 annotation(Placement(visible = true, transformation(origin = {92, -34}, extent = {{-14, -14}, {14, 14}}, rotation = 0)));
-  unitoperations.valve valve2(OutletPfixed = true)  annotation(Placement(visible = true, transformation(origin = {146, -12}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
-  unitoperations.valve valve3(OutletPfixed = true)  annotation(Placement(visible = true, transformation(origin = {144, -60}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
-  unitoperations.MaterialStream materialStream4 annotation(Placement(visible = true, transformation(origin = {198, -14}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
-  unitoperations.MaterialStream materialStream5 annotation(Placement(visible = true, transformation(origin = {198, -68}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
-  unitoperations.Distillation distillation1(Override_Sizing_Calculations = false, h_weir = 0.1, specification1 = unitoperations.Distillation.spec1.RefluxRatio, specification1_value = 2, specification2 = unitoperations.Distillation.spec2.ProductMolarFlow, specification2_value = 7)  annotation(Placement(visible = true, transformation(origin = {247, -69}, extent = {{-21, -21}, {21, 21}}, rotation = 0)));
-  unitoperations.MaterialStream materialStream6 annotation(Placement(visible = true, transformation(origin = {308, -42}, extent = {{-14, -14}, {14, 14}}, rotation = 0)));
-  unitoperations.MaterialStream materialStream7(Tbf(start = 380), Tdf(start = 380), flashCalculations = false)  annotation(Placement(visible = true, transformation(origin = {305, -89}, extent = {{-13, -13}, {13, 13}}, rotation = 0)));
+  unitoperations.MaterialStream materialStream1(Flowrate = 22, Pressure = 24, Temperature = 600, molefraction = {0.9, 0, 0.1, 0}, step_value = 2, stepchange = true, unspecified = false) annotation(Placement(visible = true, transformation(origin = {-136, -22}, extent = {{-12, -12}, {12, 12}}, rotation = 0)));
+  unitoperations.MaterialStream materialStream2(Flowrate = 66, Pressure = 24, Temperature = 600, molefraction = {0, 0.9, 0, 0.1}, unspecified = false) annotation(Placement(visible = true, transformation(origin = {-138, 16}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
+  unitoperations.CSTR cSTR1(Ab = 0, Af = 5.1e11, Eab = 0, Eaf = 230e3, T_iso = 700, V_Total = 1, operation_mode = unitoperations.CSTR.operation_type.Isothermal, order_b = {0, 0, 0, 0}, order_f = {1, 0.5, 0, 0}) annotation(Placement(visible = true, transformation(origin = {-70, 10}, extent = {{-18, -18}, {18, 18}}, rotation = 0)));
+  unitoperations.MaterialStream materialStream3 annotation(Placement(visible = true, transformation(origin = {3, 3}, extent = {{-11, -11}, {11, 11}}, rotation = 0)));
+  unitoperations.valve valve1(OutletPfixed = false) annotation(Placement(visible = true, transformation(origin = {-29, 3}, extent = {{-11, -11}, {11, 11}}, rotation = 0)));
+  unitoperations.PTFlash PTFlash1 annotation(Placement(visible = true, transformation(origin = {46, 4.36213}, extent = {{-20, -28.6955}, {20, 20.4968}}, rotation = 0)));
+  unitoperations.valve valve2(OutletPfixed = true) annotation(Placement(visible = true, transformation(origin = {88, 16}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
+  unitoperations.valve valve3(OutletPfixed = true) annotation(Placement(visible = true, transformation(origin = {80, -46}, extent = {{14, -14}, {-14, 14}}, rotation = 0)));
+  unitoperations.MaterialStream materialStream4 annotation(Placement(visible = true, transformation(origin = {122, 16}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
+  unitoperations.MaterialStream materialStream5 annotation(Placement(visible = true, transformation(origin = {122, -46}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
+  unitoperations.Distillation distillation1(Override_Sizing_Calculations = false, h_weir = 0.1, specification1 = unitoperations.Distillation.spec1.RefluxRatio, specification1_value = 2, specification2 = unitoperations.Distillation.spec2.ProductMolarFlow, specification2_value = 7) annotation(Placement(visible = true, transformation(origin = {163, -44.441}, extent = {{-21, -25.059}, {21, 17.8993}}, rotation = 0)));
+  unitoperations.MaterialStream materialStream6 annotation(Placement(visible = true, transformation(origin = {223, -17}, extent = {{-13, -13}, {13, 13}}, rotation = 0)));
+  unitoperations.MaterialStream materialStream7(Tbf(start = 380), Tdf(start = 380), flashCalculations = false) annotation(Placement(visible = true, transformation(origin = {223, -83}, extent = {{-13, -13}, {13, 13}}, rotation = 0)));
   equation
-    connect(distillation1.port3, materialStream7.port1) annotation(Line(points = {{266, -88}, {294, -88}, {294, -88}, {294, -88}}));
-    connect(distillation1.port2, materialStream6.port1) annotation(Line(points = {{266, -50}, {270, -50}, {270, -42}, {296, -42}, {296, -42}}));
-    connect(materialStream5.port2, distillation1.port1) annotation(Line(points = {{206, -68}, {228, -68}, {228, -68}, {228, -68}}));
-    connect(valve3.port2, materialStream5.port1) annotation(Line(points = {{152, -60}, {188, -60}, {188, -68}, {190, -68}}));
-    connect(PTFlash1.port1, valve3.port1) annotation(Line(points = {{92, -44}, {94, -44}, {94, -60}, {136, -60}, {136, -60}}));
-    connect(valve2.port2, materialStream4.port1) annotation(Line(points = {{154, -12}, {190, -12}, {190, -14}, {190, -14}}));
-    connect(PTFlash1.port2, valve2.port1) annotation(Line(points = {{102, -26}, {138, -26}, {138, -12}, {138, -12}}));
-    connect(materialStream3.port2, PTFlash1.port3) annotation(Line(points = {{54, -34}, {80, -34}, {80, -34}, {80, -34}}));
-    connect(valve1.port2, materialStream3.port1) annotation(Line(points = {{22, -34}, {38, -34}}));
-    connect(cSTR1.port3, valve1.port1) annotation(Line(points = {{-15, -34}, {6, -34}}));
-    connect(materialStream2.port2, cSTR1.port2) annotation(Line(points = {{-71, 42}, {-29, 42}, {-29, -7}}));
-    connect(materialStream1.port2, cSTR1.port1) annotation(Line(points = {{-72, -22}, {-45, -22}}));
-  end WithoutRecycle;
+    connect(distillation1.port2, materialStream6.port1) annotation(Line(points = {{178, -35}, {186, -35}, {186, -17}, {212, -17}}));
+    connect(distillation1.port3, materialStream7.port1) annotation(Line(points = {{178, -57}, {203, -57}, {203, -83}, {212, -83}}));
+    connect(materialStream5.port2, distillation1.port1) annotation(Line(points = {{130.5, -46}, {146, -46}}));
+    connect(valve3.port2, materialStream5.port1) annotation(Line(points = {{69, -46}, {114, -46}}));
+    connect(PTFlash1.port1, valve3.port1) annotation(Line(points = {{61, -11}, {60, -11}, {60, -46}, {91, -46}}));
+    connect(valve2.port2, materialStream4.port1) annotation(Line(points = {{96, 16}, {114, 16}}));
+    connect(PTFlash1.port2, valve2.port1) annotation(Line(points = {{61, 16}, {80, 16}}));
+    connect(materialStream3.port2, PTFlash1.port3) annotation(Line(points = {{12, 3}, {31, 3}}));
+    connect(valve1.port2, materialStream3.port1) annotation(Line(points = {{-20, 3}, {-6, 3}}));
+    connect(cSTR1.port3, valve1.port1) annotation(Line(points = {{-54, 3}, {-38, 3}}));
+    connect(materialStream1.port2, cSTR1.port1) annotation(Line(points = {{-126, -22}, {-99.5, -22}, {-99.5, 11}, {-86, 11}}));
+    connect(materialStream2.port2, cSTR1.port2) annotation(Line(points = {{-129.5, 16}, {-86, 16}, {-86, 17}}));
+    annotation(Diagram(coordinateSystem(extent = {{-200, -100}, {200, 100}})), Icon(coordinateSystem(extent = {{-200, -100}, {200, 100}})), version = "", uses);end WithoutRecycle;
 
   model WithoutrecyclePhflash
   unitoperations.MaterialStream materialStream1(Flowrate = 22, Pressure = 24, Temperature = 600, molefraction = {0.9, 0, 0.1, 0}, step_value = 2, stepchange = true, unspecified = false) annotation(Placement(visible = true, transformation(origin = {-284, -4}, extent = {{-12, -12}, {12, 12}}, rotation = 0)));
@@ -128,8 +128,8 @@ package BenzeneProduction
     annotation(Diagram(coordinateSystem(extent = {{-300, -100}, {300, 100}}, preserveAspectRatio = false)), Icon(coordinateSystem(extent = {{-300, -100}, {300, 100}}, preserveAspectRatio = false)), version = "", uses);end WithoutrecyclePhflash;
 
   model WithRecycle
-  unitoperations.MaterialStream materialStream1(Flowrate = 22, Pressure = 24, Temperature = 600, molefraction = {0.9, 0, 0.1, 0}, step_value = 2, stepchange = true, unspecified = false) annotation(Placement(visible = true, transformation(origin = {-280, 18}, extent = {{-12, -12}, {12, 12}}, rotation = 0)));
-  unitoperations.MaterialStream materialStream2(Flowrate = 66, Pressure = 24, Temperature = 600, molefraction = {0, 0.9, 0, 0.1}, unspecified = false) annotation(Placement(visible = true, transformation(origin = {-280, 60}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
+  unitoperations.MaterialStream materialStream1(Flowrate = 22, Pressure = 24, Temperature = 450, molefraction = {0.9, 0, 0.1, 0}, step_value = 2, stepchange = true, unspecified = false) annotation(Placement(visible = true, transformation(origin = {-280, 18}, extent = {{-12, -12}, {12, 12}}, rotation = 0)));
+  unitoperations.MaterialStream materialStream2(Flowrate = 66, Pressure = 24, Temperature = 300, molefraction = {0, 0.9, 0, 0.1}, unspecified = false) annotation(Placement(visible = true, transformation(origin = {-280, 60}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
   unitoperations.CSTR cSTR1(Ab = 0, Af = 5.1e11, Eab = 0, Eaf = 230e3, T_iso = 700, V_Total = 1, operation_mode = unitoperations.CSTR.operation_type.Isothermal, order_b = {0, 0, 0, 0}, order_f = {1, 0.5, 0, 0}) annotation(Placement(visible = true, transformation(origin = {-142.216, 18.9457}, extent = {{-19.7835, -21.582}, {19.7835, 17.985}}, rotation = 0)));
   unitoperations.MaterialStream materialStream3 annotation(Placement(visible = true, transformation(origin = {-58, 10}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
   unitoperations.valve valve1(OutletPfixed = false) annotation(Placement(visible = true, transformation(origin = {-94, 10}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
@@ -138,18 +138,21 @@ package BenzeneProduction
   unitoperations.valve valve3(OutletPfixed = true) annotation(Placement(visible = true, transformation(origin = {60, -26}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
   unitoperations.MaterialStream materialStream4 annotation(Placement(visible = true, transformation(origin = {92, 56}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
   unitoperations.MaterialStream materialStream5 annotation(Placement(visible = true, transformation(origin = {92, -26}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
-  unitoperations.Distillation distillation1(Override_Sizing_Calculations = false, h_weir = 0.01, specification1 = unitoperations.Distillation.spec1.RefluxRatio, specification1_value = 2, specification2 = unitoperations.Distillation.spec2.ProductMolarFlow, specification2_value = 15) annotation(Placement(visible = true, transformation(origin = {147, -22.8324}, extent = {{-31, -38.6205}, {31, 27.5861}}, rotation = 0)));
-  unitoperations.MaterialStream materialStream6(flashCalculations = false) annotation(Placement(visible = true, transformation(origin = {225, -9}, extent = {{-17, -17}, {17, 17}}, rotation = 0)));
-  unitoperations.MaterialStream materialStream7(flashCalculations = false) annotation(Placement(visible = true, transformation(origin = {207, -43}, extent = {{-17, -17}, {17, 17}}, rotation = 0)));
-  unitoperations.Mixer mixer1 annotation(Placement(visible = true, transformation(origin = {-234, 4}, extent = {{-16, -16}, {16, 16}}, rotation = 0)));
+  unitoperations.Distillation distillation1(Override_Sizing_Calculations = false, h_weir = 0.1, specification1 = unitoperations.Distillation.spec1.RefluxRatio, specification1_value = 2, specification2 = unitoperations.Distillation.spec2.ProductMolarFlow, specification2_value = 15) annotation(Placement(visible = true, transformation(origin = {147, -22.8324}, extent = {{-31, -38.6205}, {31, 27.5861}}, rotation = 0)));
+  unitoperations.MaterialStream materialStream6(flashCalculations = false) annotation(Placement(visible = true, transformation(origin = {213, 11}, extent = {{-17, -17}, {17, 17}}, rotation = 0)));
+  unitoperations.MaterialStream materialStream7(flashCalculations = false) annotation(Placement(visible = true, transformation(origin = {215, -43}, extent = {{-17, -17}, {17, 17}}, rotation = 0)));
+  unitoperations.Mixer mixer1(T(start = 530))  annotation(Placement(visible = true, transformation(origin = {-234, 4}, extent = {{-16, -16}, {16, 16}}, rotation = 0)));
   unitoperations.Pump pump1 annotation(Placement(visible = true, transformation(origin = {-57, -65}, extent = {{19, -26.6}, {-19, 19}}, rotation = 0)));
   unitoperations.MaterialStream materialStream8 annotation(Placement(visible = true, transformation(origin = {-163, -57}, extent = {{15, -15}, {-15, 15}}, rotation = 0)));
+  unitoperations.MaterialStream materialStream9 annotation(Placement(visible = true, transformation(origin = {-194, 6}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
   equation
+    connect(materialStream9.port2, cSTR1.port1) annotation(Line(points = {{-186, 6}, {-176, 6}, {-176, 18}, {-160, 18}, {-160, 18}}));
+    connect(mixer1.port3, materialStream9.port1) annotation(Line(points = {{-220, 6}, {-202, 6}, {-202, 6}, {-202, 6}}));
+    connect(distillation1.port3, materialStream7.port1) annotation(Line(points = {{169, -43}, {201, -43}}));
+    connect(materialStream7.port2, pump1.port1) annotation(Line(points = {{229, -43}, {244, -43}, {244, -66}, {-40, -66}}));
+    connect(distillation1.port2, materialStream6.port1) annotation(Line(points = {{169, -9}, {190, -9}, {190, 11}, {199, 11}}));
     connect(materialStream8.port2, mixer1.port2) annotation(Line(points = {{-176, -56}, {-278, -56}, {-278, -10}, {-248, -10}, {-248, -8}, {-248, -8}}));
     connect(materialStream8.port1, pump1.port2) annotation(Line(points = {{-150, -56}, {-74, -56}, {-74, -58}, {-74, -58}}));
-    connect(materialStream7.port2, pump1.port1) annotation(Line(points = {{222, -42}, {230, -42}, {230, -66}, {-40, -66}, {-40, -66}}));
-    connect(distillation1.port3, materialStream7.port1) annotation(Line(points = {{169, -43}, {193, -43}}));
-    connect(distillation1.port2, materialStream6.port1) annotation(Line(points = {{169, -9}, {211, -9}}));
     connect(materialStream5.port2, distillation1.port1) annotation(Line(points = {{100.5, -26}, {122, -26}}));
     connect(valve3.port2, materialStream5.port1) annotation(Line(points = {{68, -26}, {84, -26}}));
     connect(PTFlash1.port1, valve3.port1) annotation(Line(points = {{18, -11}, {18, -26}, {52, -26}}));
@@ -159,7 +162,6 @@ package BenzeneProduction
     connect(valve1.port2, materialStream3.port1) annotation(Line(points = {{-86, 10}, {-66, 10}}));
     connect(cSTR1.port3, valve1.port1) annotation(Line(points = {{-125, 10}, {-102, 10}}));
     connect(materialStream2.port2, cSTR1.port2) annotation(Line(points = {{-271.5, 60}, {-203, 60}, {-203, 23.25}, {-159, 23.25}, {-159, 25}}));
-    connect(mixer1.port3, cSTR1.port1) annotation(Line(points = {{-220, 4}, {-197.5, 4}, {-197.5, 18}, {-159, 18}}));
     connect(materialStream1.port2, mixer1.port1) annotation(Line(points = {{-270, 18}, {-248, 18}}));
     annotation(Diagram(coordinateSystem(extent = {{-300, -100}, {300, 100}}, preserveAspectRatio = false)), Icon(coordinateSystem(extent = {{-300, -100}, {300, 100}}, preserveAspectRatio = false)), version = "", uses);end WithRecycle;
 
@@ -178,7 +180,10 @@ package BenzeneProduction
   unitoperations.MaterialStream materialStream6(flashCalculations = false) annotation(Placement(visible = true, transformation(origin = {225, -9}, extent = {{-17, -17}, {17, 17}}, rotation = 0)));
   unitoperations.MaterialStream materialStream7(flashCalculations = false) annotation(Placement(visible = true, transformation(origin = {207, -43}, extent = {{-17, -17}, {17, 17}}, rotation = 0)));
   unitoperations.Mixer mixer1 annotation(Placement(visible = true, transformation(origin = {-234, 4}, extent = {{-16, -16}, {16, 16}}, rotation = 0)));
+  unitoperations.MaterialStream materialStream8 annotation(Placement(visible = true, transformation(origin = {-188, 4}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
   equation
+    connect(materialStream8.port2, cSTR1.port1) annotation(Line(points = {{-180, 4}, {-172, 4}, {-172, 18}, {-160, 18}, {-160, 18}}));
+    connect(mixer1.port3, materialStream8.port1) annotation(Line(points = {{-220, 6}, {-196, 6}, {-196, 4}, {-196, 4}}));
     connect(materialStream7.port2, mixer1.port2) annotation(Line(points = {{222, -42}, {238, -42}, {238, -84}, {-276, -84}, {-276, -6}, {-248, -6}, {-248, -4}}));
     connect(distillation1.port3, materialStream7.port1) annotation(Line(points = {{169, -43}, {193, -43}}));
     connect(distillation1.port2, materialStream6.port1) annotation(Line(points = {{169, -9}, {211, -9}}));
@@ -191,7 +196,6 @@ package BenzeneProduction
     connect(valve1.port2, materialStream3.port1) annotation(Line(points = {{-86, 10}, {-66, 10}}));
     connect(cSTR1.port3, valve1.port1) annotation(Line(points = {{-125, 10}, {-102, 10}}));
     connect(materialStream2.port2, cSTR1.port2) annotation(Line(points = {{-271.5, 60}, {-203, 60}, {-203, 23.25}, {-159, 23.25}, {-159, 25}}));
-    connect(mixer1.port3, cSTR1.port1) annotation(Line(points = {{-220, 4}, {-197.5, 4}, {-197.5, 18}, {-159, 18}}));
     connect(materialStream1.port2, mixer1.port1) annotation(Line(points = {{-270, 18}, {-248, 18}}));
     annotation(Diagram(coordinateSystem(extent = {{-300, -100}, {300, 100}}, preserveAspectRatio = false)), Icon(coordinateSystem(extent = {{-300, -100}, {300, 100}}, preserveAspectRatio = false)), version = "", uses);end Withrecycle1;
 end BenzeneProduction;
