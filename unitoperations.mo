@@ -327,15 +327,16 @@ package unitoperations
     parameter Real specification1_value = 1;
     parameter spec2 specification2 "reboiler";
     parameter Real specification2_value = 1;
+    parameter Real QC(unit = "J/s", fixed = false, start = 1.35e6, nominal = 1e6), QB(unit = "J/s", fixed = false, start = 1.5e6, nominal = 1e6);
     parameter Real Tray_volume(unit = "m3") = 0.1 annotation(Dialog(tab = "dynamic", group = "Tray data"));
     parameter Real pi1 = -12.55 "constant for calculationg froth density, phi" annotation(Dialog(tab = "dynamic", group = "vapor flow"));
     parameter Real pi2 = 0.91 "constant for calculationg froth density, phi" annotation(Dialog(tab = "dynamic", group = "vapor flow"));
     Real y[N_Trays, NOC](start = fill(0.5, N_Trays, NOC)), x[N_Trays, NOC](start = fill(0.5, N_Trays, NOC), each nominal = 1e-1), y_eq[N_Trays, NOC], Tf[N_Trays](each unit = "K") annotation(each HideResult = true);
     Real V[N_Trays](each unit = "mol/s", each start = 70), L[N_Trays](each unit = "mol/s", each start = 100);
-    Real T[N_Trays](each unit = "K", start = linspace(386, 354, N_Trays), each nominal = 1e2), TC(unit = "K", start = 368), TB(unit = "K", start = 377), L0(unit = "mol/s", start = 50), VNT(unit = "mol/s"), D(unit = "mol/s"), B(unit = "mol/s"), xc[NOC], xr[NOC], QC(unit = "J/s", nominal = 1e6), QB(unit = "J/s", nominal = 1e6);
+    Real T[N_Trays](each unit = "K", start = linspace(386, 354, N_Trays), each nominal = 1e2), TC(unit = "K", start = 368), TB(unit = "K", start = 377), L0(unit = "mol/s", start = 50), VNT(unit = "mol/s"), D(unit = "mol/s"), B(unit = "mol/s"), xc[NOC], xr[NOC];
     Real Keq[N_Trays, NOC] annotation(each HideResult = true), Psat[N_Trays, NOC](each unit = "Pa") annotation(each HideResult = true), PsatC[NOC](each unit = "Pa"), PsatB[NOC](each unit = "Pa");
     Real yNT[NOC], M[N_Trays](each unit = "mol", each start = 2000), den[N_Trays, NOC](each unit = "kmol/m3") annotation(each HideResult = true);
-    Real hv[N_Trays, NOC](each unit = "J/mol", each nominal = 1e3) annotation(each HideResult = true), hl[N_Trays, NOC](each unit = "J/mol", each nominal = 1e4) annotation(each HideResult = true), hf[N_Trays, NOC](each unit = "J/mol") annotation(each HideResult = true), hv_B[NOC](each unit = "J/mol") annotation(each HideResult = true), hl_B[NOC](each unit = "J/mol") annotation(each HideResult = true), hl_C[NOC](each unit = "J/mol") annotation(each HideResult = true);
+    Real hv[N_Trays, NOC](each unit = "J/mol", each nominal = 1e3) annotation(each HideResult = true), hl[N_Trays, NOC](each unit = "J/mol", each nominal = 1e4) annotation(each HideResult = true), hf[N_Trays, NOC](each unit = "J/mol") annotation(each HideResult = true), hv_B[NOC](each unit = "J/mol") annotation(each HideResult = true), hl_B[NOC](each unit = "J/mol") annotation(each HideResult = true), hl_C[NOC](each unit = "J/mol") annotation(each HideResult = true), Cpl[N_Trays,NOC];
     Real P[N_Trays](each unit = "Pa"), Ks[N_Trays] annotation(each HideResult = true);
     Real F[N_Trays](each start = 0) annotation(each HideResult = true), z[N_Trays, NOC](start = fill(0.5, N_Trays, NOC)) annotation(each HideResult = true);
     unitoperations.port port1 annotation(Placement(visible = true, transformation(origin = {-54, 0}, extent = {{-18, -18}, {18, 18}}, rotation = 0), iconTransformation(origin = {-56, 2}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
@@ -354,6 +355,8 @@ package unitoperations
       der(M[i]) = 0;
       der(T[i]) = 0;
     end for;
+    V[N_Trays] * sum(y[N_Trays, :] .* hv[N_Trays, :]) - (L0 + D) * sum(xc[:] .* hl_C[:]) = QC;
+    L[1] * sum(x[1, :] .* hl[1, :]) - B * sum(xr[:] .* hl_B[:]) - VNT * sum(xr[:] .* hv_B[:]) = QB;
   equation
 //  port1.pressure = P[N_Feed]; "should be automatic"
     for i in 1:N_Trays loop
@@ -368,16 +371,15 @@ package unitoperations
     end for;
 //functions required
     for i in 1:NOC loop
-      for j in 1:N_Trays loop
-        Psat[j, i] = Functions.Psat(comp[i].VP, T[j]);
-        hv[j, i] = Functions.HVapId(comp[i].VapCp, comp[i].HOV, comp[i].Tc, T[j]);
-        hl[j, i] = Functions.HLiqId1(comp[i].VapCp, comp[i].HOV, comp[i].Tc, T[j]);
-        hf[j, i] = Functions.HLiqId1(comp[i].VapCp, comp[i].HOV, comp[i].Tc, Tf[j]);
-        den[j, i] = Functions.Density(comp[i].LiqDen, comp[i].Tc, T[j], P[j]);
-      end for;
+      Psat[:, i] = Functions.Psat(comp[i].VP, T[:]);
+      hv[:, i] = Functions.HVapId(comp[i].VapCp, comp[i].HOV, comp[i].Tc, T[:]);
+      hf[:, i] = Functions.HLiqId(comp[i].VapCp, comp[i].HOV, comp[i].Tc, Tf[:]);
+      den[:, i] = Functions.Density(comp[i].LiqDen, comp[i].Tc, T[:], P[:]);
+      Cpl[:,i] =Functions.LiqCpId(comp[i].LiqCp, T[:]);
+      hl[:, i] = Functions.HLiqId1(comp[i].VapCp, comp[i].HOV, comp[i].Tc, T[:])"have to change this"; 
       hv_B[i] = Functions.HVapId(comp[i].VapCp, comp[i].HOV, comp[i].Tc, TB);
-      hl_B[i] = Functions.HLiqId1(comp[i].VapCp, comp[i].HOV, comp[i].Tc, TB);
-      hl_C[i] = Functions.HLiqId1(comp[i].VapCp, comp[i].HOV, comp[i].Tc, TC);
+      hl_B[i] = Functions.HLiqId(comp[i].VapCp, comp[i].HOV, comp[i].Tc, TB);
+      hl_C[i] = Functions.HLiqId(comp[i].VapCp, comp[i].HOV, comp[i].Tc, TC);
       PsatC[i] = Functions.Psat(comp[i].VP, TC);
       PsatB[i] = Functions.Psat(comp[i].VP, TB);
     end for;
@@ -399,13 +401,12 @@ package unitoperations
     V[N_Trays] - L0 - D = 0;
     y[N_Trays, :] = xc[:];
 //energy balance
-    VNT * sum(yNT[:] .* hv_B[:]) - V[1] * sum(y[1, :] .* hv[1, :]) + L[2] * sum(x[2, :] .* hl[2, :]) - L[1] * sum(x[1, :] .* hl[1, :]) + F[1] * sum(z[1, :] .* hf[1, :]) = der(x[1, :] * M[1] * hl[1, :]);
+    VNT * sum(yNT[:] .* hv_B[:]) - V[1] * sum(y[1, :] .* hv[1, :]) + L[2] * sum(x[2, :] .* hl[2, :]) - L[1] * sum(x[1, :] .* hl[1, :]) + F[1] * sum(z[1, :] .* hf[1, :]) = der(x[1, :] * M[1]) * hl[1, :] + x[1, :] * M[1] * Cpl[1,:] * der(T[1]);
     for i in 2:N_Trays - 1 loop
-      V[i - 1] * sum(y[i - 1, :] .* hv[i - 1, :]) - V[i] * sum(y[i, :] .* hv[i, :]) + L[i + 1] * sum(x[i + 1, :] .* hl[i + 1, :]) - L[i] * sum(x[i, :] .* hl[i, :]) + F[i] * sum(z[i, :] .* hf[i, :]) = der(x[i, :] * M[i] * hl[i, :]);
+      V[i - 1] * sum(y[i - 1, :] .* hv[i - 1, :]) - V[i] * sum(y[i, :] .* hv[i, :]) + L[i + 1] * sum(x[i + 1, :] .* hl[i + 1, :]) - L[i] * sum(x[i, :] .* hl[i, :]) + F[i] * sum(z[i, :] .* hf[i, :]) = der(x[i, :] * M[i]) * hl[i, :] + x[i, :] * M[i] * Cpl[i,:] * der(T[i]);
     end for;
-    V[N_Trays - 1] * sum(y[N_Trays - 1, :] .* hv[N_Trays - 1, :]) - V[N_Trays] * sum(y[N_Trays, :] .* hv[N_Trays, :]) + L0 * sum(xc[:] .* hl_C[:]) - L[N_Trays] * sum(x[N_Trays, :] .* hl[N_Trays, :]) + F[N_Trays] * sum(z[N_Trays, :] .* hf[N_Trays, :]) = der(x[N_Trays, :] * M[N_Trays] * hl[N_Trays, :]);
-    V[N_Trays] * sum(y[N_Trays, :] .* hv[N_Trays, :]) - (L0 + D) * sum(xc[:] .* hl_C[:]) = QC;
-    L[1] * sum(x[1, :] .* hl[1, :]) - B * sum(xr[:] .* hl_B[:]) - VNT * sum(xr[:] .* hv_B[:]) = QB;
+    V[N_Trays - 1] * sum(y[N_Trays - 1, :] .* hv[N_Trays - 1, :]) - V[N_Trays] * sum(y[N_Trays, :] .* hv[N_Trays, :]) + L0 * sum(xc[:] .* hl_C[:]) - L[N_Trays] * sum(x[N_Trays, :] .* hl[N_Trays, :]) + F[N_Trays] * sum(z[N_Trays, :] .* hf[N_Trays, :]) = der(x[N_Trays, :] * M[N_Trays]) * hl[N_Trays, :] + x[N_Trays,:] * M[N_Trays] * Cpl[N_Trays,:] * der(T[N_Trays]);
+    
 //pressure
     for i in 1:N_Trays loop
       P[i] = (P_condenser + (N_Trays - i + 1) * Pressure_drop) * 101325;
@@ -461,6 +462,32 @@ package unitoperations
     end if;
     annotation(Icon(coordinateSystem(extent = {{-70, -140}, {70, 100}}, preserveAspectRatio = false), graphics = {Polygon(origin = {-1, 2}, fillColor = {170, 170, 255}, fillPattern = FillPattern.Solid, points = {{-63, -62.0013}, {-51, -78.0013}, {-33, -86.0013}, {-13, -90.0013}, {15, -90.0013}, {39, -84.0013}, {55, -76.0013}, {63, -62.0013}, {63, 71.9987}, {45, 81.9987}, {29, 87.9987}, {17, 89.9987}, {-15, 89.9987}, {-33, 85.9987}, {-49, 79.9987}, {-63, 69.9987}, {-63, -62.0013}}), Line(origin = {8, 55}, points = {{-54, 5}, {-54, -5}, {54, -5}}), Line(origin = {-10, 36}, points = {{-54, -4}, {54, -4}, {54, 4}}), Line(origin = {3, 14}, points = {{-59, 6}, {-59, -6}, {59, -6}}), Line(origin = {-9, -9}, points = {{-55, -5}, {53, -5}, {53, 5}}), Line(origin = {6, -35}, points = {{-58, 5}, {-58, -5}, {56, -5}}), Text(origin = {1, -102}, extent = {{-49, 18}, {57, -28}}, textString = "Distillation")}), Diagram(coordinateSystem(extent = {{-70, -140}, {70, 100}}, preserveAspectRatio = false)), version = "", uses, Documentation(info = "<HTML> <p> This is a generalized model for distilation column </p> </HTML>"));
   end Distillation;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
   model PTFlash
     parameter Real hset(unit = "m") = 0.7 annotation(Dialog(group = "Operating conditions")), Pset(unit = "atm") = 5 annotation(Dialog(group = "Operating conditions"));
