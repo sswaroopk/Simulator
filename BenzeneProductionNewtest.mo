@@ -49,6 +49,25 @@ package BenzeneProductionNewtest
   
   end Reactor;
 
+  model Distillationtest
+    unitoperationsModified.MaterialStream feed(Flowrate = 80, molefraction = {0.5, 0, 0.5, 0}, pressure = 100000, specified_stream = true, step_value = 2, stepchange = true, stepchangetime = 0.5)  annotation(
+      Placement(visible = true, transformation(origin = {-78, 0}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
+    unitoperationsModified.Distillation distillation1(Dynamic = false, Override_Sizing_Calculations = false, P_condenser = 100000, Pressure_drop = 700, specification1 = unitoperationsModified.types.Distillation_spec1.RefluxRatio, specification1_value = 2, specification2 = unitoperationsModified.types.Distillation_spec2.ProductMolarFlow, specification2_value = 20)  annotation(
+      Placement(visible = true, transformation(origin = {-33, 0.787066}, extent = {{-16, -29.6981}, {16, 21.2129}}, rotation = 0)));
+  unitoperationsModified.MaterialStream distillate annotation(
+      Placement(visible = true, transformation(origin = {20, 18}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
+  unitoperationsModified.MaterialStream bottoms annotation(
+      Placement(visible = true, transformation(origin = {20, -28}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
+  equation
+    connect(distillation1.port3, bottoms.port1) annotation(
+      Line(points = {{-22, -14}, {-4, -14}, {-4, -28}, {12, -28}, {12, -28}}));
+    connect(distillation1.port2, distillate.port1) annotation(
+      Line(points = {{-22, 12}, {10, 12}, {10, 18}, {12, 18}}));
+    connect(feed.port2, distillation1.port1) annotation(
+      Line(points = {{-70, 0}, {-46, 0}, {-46, -2}, {-46, -2}}));
+  
+  end Distillationtest;
+
 
 
 

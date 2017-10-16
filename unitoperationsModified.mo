@@ -369,12 +369,15 @@ package unitoperationsModified
   end CompoundSeperator;
 
   model Distillation
+    import Modelica.SIunits.{Temperature, Volume, Pressure, MolarFlowRate, MoleFraction, Time, Enthalpy, MolarEnthalpy, EnthalpyFlowRate, Area, Length};
+    import Modelica.Constants.R;
     parameter Chemsep_Database.Benzene comp1 annotation(
       Dialog(tab = "General", group = "compounds"));
     parameter Chemsep_Database.Toluene comp2 annotation(
       Dialog(tab = "General", group = "compounds"));
     parameter Chemsep_Database.General_Properties comp[2] = {comp1, comp2} annotation(
       Dialog(tab = "General", group = "compounds"));
+    parameter Boolean Dynamic = true;
     parameter Integer N_Trays = 20 "No. of trays without condensor and reboiler" annotation(
       Dialog(tab = "General", group = "Trays"));
     parameter Integer NOC = 2 "No. of compounds" annotation(
@@ -384,58 +387,55 @@ package unitoperationsModified
     parameter Real M_eff = 0.99 "Murphree efficiency of trays" annotation(
       Dialog(tab = "General", group = "Efficiency"),
       each HideResult = true);
-    parameter Real Pressure_drop(unit = "atm") = 0.007 "Pressure Drop per tray" annotation(
+    parameter Pressure Pressure_drop = 0.007 "Pressure Drop per tray" annotation(
+      Dialog(tab = "General", group = "Pressure Profile")), P_condenser = 1 "Pressure in Condensor" annotation(
       Dialog(tab = "General", group = "Pressure Profile"));
-    parameter Real P_condenser(unit = "atm") = 1 "Pressure in Condensor" annotation(
-      Dialog(tab = "General", group = "Pressure Profile"));
-    constant Real R = 8.314 "Gas Constant";
-    parameter Real Active_area(unit = "m2") = 1 "Active area of Tray" annotation(
+    parameter Area Active_area = 1 "Active area of Tray" annotation(
+      Dialog(tab = "dynamic", group = "Tray data")), A_active(fixed = false, start = 0.6);
+    parameter Length Weir_diameter = 0.8 "Diameter of weir" annotation(
+      Dialog(tab = "dynamic", group = "Tray data")), d_weir(fixed = false), h_weir = 0.1 "Height of weir" annotation(
       Dialog(tab = "dynamic", group = "Tray data"));
-    parameter Real Weir_diameter(unit = "m") = 0.8 "Diameter of weir" annotation(
-      Dialog(tab = "dynamic", group = "Tray data"));
-    parameter Real A_active(unit = "m2", fixed = false, start = 0.6);
-    parameter Real d_weir(unit = "m", fixed = false);
     parameter Boolean Override_Sizing_Calculations;
     parameter Real Kv(unit = "ft/s") = 0.3 "constant for calculating max velocity permissible, ft/s" annotation(
-      Dialog(tab = "dynamic", group = "Tray data"));
-    parameter Real h_weir(unit = "m") = 0.1 "Height of weir" annotation(
       Dialog(tab = "dynamic", group = "Tray data"));
     parameter types.Distillation_spec1 specification1 "condensor";
     parameter Real specification1_value = 1;
     parameter types.Distillation_spec2 specification2 "reboiler";
     parameter Real specification2_value = 1;
-    parameter Real QC(unit = "J/s", fixed = false, start = 1.35e6, nominal = 1e6), QB(unit = "J/s", fixed = false, start = 1.5e6, nominal = 1e6);
-    parameter Real Tray_volume(unit = "m3") = 0.1 annotation(
-      Dialog(tab = "dynamic", group = "Tray data"));
     parameter Real pi1 = -12.55 "constant for calculationg froth density, phi" annotation(
       Dialog(tab = "dynamic", group = "vapor flow"));
     parameter Real pi2 = 0.91 "constant for calculationg froth density, phi" annotation(
       Dialog(tab = "dynamic", group = "vapor flow"));
-    Real y[N_Trays, NOC](start = fill(0.5, N_Trays, NOC)), x[N_Trays, NOC](start = fill(0.5, N_Trays, NOC), each nominal = 1e-1), y_eq[N_Trays, NOC] annotation(
-      each HideResult = true), Tf[N_Trays](each unit = "K") annotation(
-      each HideResult = true);
-    Real V[N_Trays](each unit = "mol/s", each start = 70), L[N_Trays](each unit = "mol/s", each start = 100);
-    Real T[N_Trays](each unit = "K", start = linspace(386, 354, N_Trays), each nominal = 1e2), TC(unit = "K", start = 368), TB(unit = "K", start = 377), L0(unit = "mol/s", start = 50), VNT(unit = "mol/s"), D(unit = "mol/s"), B(unit = "mol/s"), xc[NOC], xr[NOC];
-    Real Keq[N_Trays, NOC] annotation(
-      each HideResult = true), Psat[N_Trays, NOC](each unit = "Pa") annotation(
-      each HideResult = true), PsatC[NOC](each unit = "Pa") annotation(
-      each HideResult = true), PsatB[NOC](each unit = "Pa") annotation(
-      each HideResult = true);
-    Real yNT[NOC], M[N_Trays](each unit = "mol", each start = 2000), den[N_Trays, NOC](each unit = "kmol/m3") annotation(
-      each HideResult = true);
-    Real hv[N_Trays, NOC](each unit = "J/mol", each nominal = 1e3) annotation(
-      each HideResult = true), hl[N_Trays, NOC](each unit = "J/mol", each nominal = 1e4) annotation(
-      each HideResult = true), hf[N_Trays, NOC](each unit = "J/mol") annotation(
-      each HideResult = true), hv_B[NOC](each unit = "J/mol") annotation(
-      each HideResult = true), hl_B[NOC](each unit = "J/mol") annotation(
-      each HideResult = true), hl_C[NOC](each unit = "J/mol") annotation(
+    
+    MoleFraction z[N_Trays, NOC](start = fill(0.5, N_Trays, NOC)) annotation(
+      each HideResult = true), y[N_Trays, NOC](start = fill(0.5, N_Trays, NOC)), x[N_Trays, NOC](start = fill(0.5, N_Trays, NOC), each nominal = 1e-1), y_eq[N_Trays, NOC] annotation(
+      each HideResult = true), xc[NOC], xr[NOC], yNT[NOC];
+    
+    Temperature Tf[N_Trays] annotation(
+      each HideResult = true), T[N_Trays](start = linspace(386, 354, N_Trays), each nominal = 1e2), TC(start = 368), TB(start = 377);
+    
+    MolarFlowRate F[N_Trays](each start = 0) annotation(
+      each HideResult = true), V[N_Trays](each start = 70), L[N_Trays](each start = 100), L0(start = 50), VNT, D, B;
+    
+    
+    Pressure Psat[N_Trays, NOC] annotation(each HideResult = true), PsatC[NOC] annotation(each HideResult = true), PsatB[NOC] annotation(
+      each HideResult = true), P[N_Trays];
+    
+    Real M[N_Trays](each unit = "mol", each start = 2000), den[N_Trays, NOC](each unit = "kmol/m3")  annotation(
       each HideResult = true), Cpl[N_Trays, NOC](each unit = "J/mol.K") annotation(
+      each HideResult = true), Ks[N_Trays] annotation(
+      each HideResult = true), Keq[N_Trays, NOC] annotation(
       each HideResult = true);
-    Real P[N_Trays](each unit = "Pa"), Ks[N_Trays] annotation(
+    
+    MolarEnthalpy hv[N_Trays, NOC](each nominal = 1e3) annotation(
+      each HideResult = true), hl[N_Trays, NOC](each nominal = 1e4) annotation(
+      each HideResult = true), hf[N_Trays, NOC] annotation(
+      each HideResult = true), hv_B[NOC] annotation(
+      each HideResult = true), hl_B[NOC] annotation(
+      each HideResult = true), hl_C[NOC] annotation(
       each HideResult = true);
-    Real F[N_Trays](each start = 0) annotation(
-      each HideResult = true), z[N_Trays, NOC](start = fill(0.5, N_Trays, NOC)) annotation(
-      each HideResult = true);
+    
+    EnthalpyFlowRate QC(start = 1.35e6, nominal = 1e6), QB(start = 1.5e6, nominal = 1e6);
     unitoperations.port port1 annotation(
       Placement(visible = true, transformation(origin = {-54, 0}, extent = {{-18, -18}, {18, 18}}, rotation = 0), iconTransformation(origin = {-56, 2}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
     unitoperations.port port2 annotation(
@@ -443,7 +443,14 @@ package unitoperationsModified
     unitoperations.port port3 annotation(
       Placement(visible = true, transformation(origin = {62, -80}, extent = {{-10, -10}, {10, 10}}, rotation = 0), iconTransformation(origin = {50, -62}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
   initial equation
-/*sizing*/
+
+    if Dynamic == true then
+      for i in 1:N_Trays loop
+        der(M[i]) = 0;
+        der(T[i]) = 0;
+      end for;
+    end if;
+  //sizing
     if Override_Sizing_Calculations == false then
       Kv * 0.3048 * ((den[1, :] * x[1, :] - P[1] / (R * T[1] * 1000)) * (P[1] / (R * T[1] * 1000))) ^ 0.5 * 1000 * A_active = max(V);
       d_weir = (A_active * 4 / 3.14) ^ 0.5;
@@ -451,12 +458,7 @@ package unitoperationsModified
       A_active = Active_area;
       d_weir = Weir_diameter;
     end if;
-    for i in 1:N_Trays loop
-      der(M[i]) = 0;
-      der(T[i]) = 0;
-    end for;
-    V[N_Trays] * sum(y[N_Trays, :] .* hv[N_Trays, :]) - (L0 + D) * sum(xc[:] .* hl_C[:]) = QC;
-    L[1] * sum(x[1, :] .* hl[1, :]) - B * sum(xr[:] .* hl_B[:]) - VNT * sum(xr[:] .* hv_B[:]) = QB;
+    
   equation
 //  port1.pressure = P[N_Feed]; "should be automatic"
     for i in 1:N_Trays loop
@@ -469,7 +471,8 @@ package unitoperationsModified
       z[i, 1] = port1.molefrac[3];
       z[i, 2] = port1.molefrac[1];
     end for;
-//functions required
+
+  //functions required
     for i in 1:NOC loop
       Psat[:, i] = Functions.Psat(comp[i].VP, T[:]);
       hv[:, i] = Functions.HVapId(comp[i].VapCp, comp[i].HOV, comp[i].Tc, T[:]);
@@ -483,34 +486,51 @@ package unitoperationsModified
       PsatC[i] = Functions.Psat(comp[i].VP, TC);
       PsatB[i] = Functions.Psat(comp[i].VP, TB);
     end for;
+  
+  //superficial velocity
     for i in 1:N_Trays loop
       Ks[i] = V[i] * R * T[i] / (A_active * P[i]) * (P[i] / (R * T[i] * (1000 * sum(x[i, :] .* den[i, :]) - P[i] / (R * T[i])))) ^ 0.5;
     end for;
-//tray mass balance
+
+  //mass balance
     xr[:] = x[1, :];
     yNT[:] = xr[:];
     L[1] - VNT - B = 0;
+  
     for i in 1:N_Trays loop
       M[i] = A_active * sum(x[i, :] .* den[i, :]) * 1000 * (exp(pi1 * Ks[i] ^ pi2) * h_weir + 44300 * 10 ^ (-3) * (L[i] / (sum(x[i, :] .* den[i, :]) * 1000 * d_weir * 1000)) ^ 0.704);
     end for;
-    der(x[1, :] * M[1]) = VNT .* yNT[:] + L[2] .* x[2, :] - V[1] .* y[1, :] - L[1] .* x[1, :] + F[1] .* z[1, :];
+  
+    VNT .* yNT[:] + L[2] .* x[2, :] - V[1] .* y[1, :] - L[1] .* x[1, :] + F[1] .* z[1, :] = if Dynamic == true then der(x[1, :] * M[1]) else zeros(NOC);
+  
     for i in 2:N_Trays - 1 loop
-      der(x[i, :] * M[i]) = V[i - 1] .* y[i - 1, :] + L[i + 1] .* x[i + 1, :] - V[i] .* y[i, :] - L[i] .* x[i, :] + F[i] .* z[i, :];
+      V[i - 1] .* y[i - 1, :] + L[i + 1] .* x[i + 1, :] - V[i] .* y[i, :] - L[i] .* x[i, :] + F[i] .* z[i, :] = if Dynamic == true then der(x[i, :] * M[i]) else zeros(NOC);
     end for;
-    der(x[N_Trays, :] * M[N_Trays]) = V[N_Trays - 1] .* y[N_Trays - 1, :] + L0 .* xc[:] - V[N_Trays] .* y[N_Trays, :] - L[N_Trays] .* x[N_Trays, :] + F[N_Trays] .* z[N_Trays, :];
+  
+    V[N_Trays - 1] .* y[N_Trays - 1, :] + L0 .* xc[:] - V[N_Trays] .* y[N_Trays, :] - L[N_Trays] .* x[N_Trays, :] + F[N_Trays] .* z[N_Trays, :] = if Dynamic == true then der(x[N_Trays, :] * M[N_Trays]) else zeros(NOC);
+  
     V[N_Trays] - L0 - D = 0;
+  
     y[N_Trays, :] = xc[:];
-//energy balance
-    VNT * sum(yNT[:] .* hv_B[:]) - V[1] * sum(y[1, :] .* hv[1, :]) + L[2] * sum(x[2, :] .* hl[2, :]) - L[1] * sum(x[1, :] .* hl[1, :]) + F[1] * sum(z[1, :] .* hf[1, :]) = der(x[1, :] * M[1]) * hl[1, :] + x[1, :] * M[1] * Cpl[1, :] * der(T[1]);
+
+  //energy balance
+    VNT * sum(yNT[:] .* hv_B[:]) - V[1] * sum(y[1, :] .* hv[1, :]) + L[2] * sum(x[2, :] .* hl[2, :]) - L[1] * sum(x[1, :] .* hl[1, :]) + F[1] * sum(z[1, :] .* hf[1, :]) = if Dynamic == true then der(x[1, :] * M[1]) * hl[1, :] + x[1, :] * M[1] * Cpl[1, :] * der(T[1]) else 0;
+  
     for i in 2:N_Trays - 1 loop
-      V[i - 1] * sum(y[i - 1, :] .* hv[i - 1, :]) - V[i] * sum(y[i, :] .* hv[i, :]) + L[i + 1] * sum(x[i + 1, :] .* hl[i + 1, :]) - L[i] * sum(x[i, :] .* hl[i, :]) + F[i] * sum(z[i, :] .* hf[i, :]) = der(x[i, :] * M[i]) * hl[i, :] + x[i, :] * M[i] * Cpl[i, :] * der(T[i]);
+      V[i - 1] * sum(y[i - 1, :] .* hv[i - 1, :]) - V[i] * sum(y[i, :] .* hv[i, :]) + L[i + 1] * sum(x[i + 1, :] .* hl[i + 1, :]) - L[i] * sum(x[i, :] .* hl[i, :]) + F[i] * sum(z[i, :] .* hf[i, :]) = if Dynamic == true then der(x[i, :] * M[i]) * hl[i, :] + x[i, :] * M[i] * Cpl[i, :] * der(T[i]) else 0;
     end for;
-    V[N_Trays - 1] * sum(y[N_Trays - 1, :] .* hv[N_Trays - 1, :]) - V[N_Trays] * sum(y[N_Trays, :] .* hv[N_Trays, :]) + L0 * sum(xc[:] .* hl_C[:]) - L[N_Trays] * sum(x[N_Trays, :] .* hl[N_Trays, :]) + F[N_Trays] * sum(z[N_Trays, :] .* hf[N_Trays, :]) = der(x[N_Trays, :] * M[N_Trays]) * hl[N_Trays, :] + x[N_Trays, :] * M[N_Trays] * Cpl[N_Trays, :] * der(T[N_Trays]);
-//pressure
+  
+    V[N_Trays - 1] * sum(y[N_Trays - 1, :] .* hv[N_Trays - 1, :]) - V[N_Trays] * sum(y[N_Trays, :] .* hv[N_Trays, :]) + L0 * sum(xc[:] .* hl_C[:]) - L[N_Trays] * sum(x[N_Trays, :] .* hl[N_Trays, :]) + F[N_Trays] * sum(z[N_Trays, :] .* hf[N_Trays, :]) = if Dynamic == true then der(x[N_Trays, :] * M[N_Trays]) * hl[N_Trays, :] + x[N_Trays, :] * M[N_Trays] * Cpl[N_Trays, :] * der(T[N_Trays]) else 0;
+
+    V[N_Trays] * sum(y[N_Trays, :] .* hv[N_Trays, :]) - (L0 + D) * sum(xc[:] .* hl_C[:]) = QC;
+    L[1] * sum(x[1, :] .* hl[1, :]) - B * sum(xr[:] .* hl_B[:]) - VNT * sum(xr[:] .* hv_B[:]) = QB;
+  
+  //pressure
     for i in 1:N_Trays loop
-      P[i] = (P_condenser + (N_Trays - i + 1) * Pressure_drop) * 101325;
+      P[i] = (P_condenser + (N_Trays - i + 1) * Pressure_drop);
     end for;
-//Equilibrium
+
+  //Equilibrium
     for i in 1:N_Trays loop
       Keq[i, :] = Psat[i, :] ./ P[i];
       y_eq[i, :] = Keq[i, :] .* x[i, :];
@@ -518,17 +538,21 @@ package unitoperationsModified
       sum(x[i, :]) = 1;
       sum(y_eq[i, :]) = 1;
     end for;
-    sum(y[N_Trays, :] .* PsatC[:] / (P_condenser * 101325)) = 1;
-    sum(x[1, :] .* (P[1] + Pressure_drop * 101325) ./ PsatB[:]) = 1;
+  
+    sum(y[N_Trays, :] .* PsatC[:] / (P_condenser)) = 1;
+    sum(x[1, :] .* (P[1] + Pressure_drop) ./ PsatB[:]) = 1;
+  
+  //connector
     port2.moleflow = D;
     port2.molefrac = {xc[2], 0, xc[1], 0};
     port2.temperature = TC;
-    port2.pressure = P_condenser * 101325;
+    port2.pressure = P_condenser;
     port3.moleflow = B;
     port3.molefrac = {xr[2], 0, xr[1], 0};
     port3.temperature = TB;
-    port3.pressure = P[1] + Pressure_drop * 101325;
-//Equations for Specification
+    port3.pressure = P[1] + Pressure_drop;
+
+  //Equations for Specification
     if Integer(specification1) == 1 then
       QC = specification1_value;
     elseif Integer(specification1) == 2 then
@@ -566,6 +590,46 @@ package unitoperationsModified
       uses,
       Documentation(info = "<HTML> <p> This is a generalized model for distilation column </p> </HTML>"));
   end Distillation;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
   model PTFlash
     extends compounds;
