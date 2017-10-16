@@ -37,11 +37,15 @@ package unitoperationsModified
   end port;
 
   model valve
-    parameter Real coeff(fixed = false) "Coeff for valve", valveCv = 0.4 "valve Cv if not control valve";
+    import Modelica.SIunits.{MolarFlowRate,Pressure};
+    parameter Boolean Dynamic = true;
+    parameter Real coeff(fixed = false, start = 0.5) "Coeff for valve", valveCv = 0.4 "valve Cv if not control valve";
     parameter Boolean Control = false;
     parameter Boolean OutletPfixed = false;
-    parameter Real OutletPressure(unit = "atm") = 1 "used only when OutletPfixed is true";
-    Real flowrate, Cv, outletP, delP;
+    parameter Pressure OutletPressure = 1e5 "used only when OutletPfixed is true";
+    MolarFlowRate flowrate;
+    Real Cv;
+    Pressure outletP, delP;
     unitoperations.sensor sensor1 annotation(
       Placement(visible = true, transformation(origin = {1, 77}, extent = {{-19, -19}, {19, 19}}, rotation = 0), iconTransformation(origin = {2, 56}, extent = {{-18, -18}, {18, 18}}, rotation = 0)));
     unitoperations.port port1 annotation(
@@ -52,16 +56,16 @@ package unitoperationsModified
     if Control == false then
       sensor1.var = 0;
     end if;
-    if Control == true then
+    if Control == true and Dynamic == true then
       Cv = sensor1.var;
-    else
+    elseif Control == false and Dynamic == true then
       Cv = valveCv;
     end if;
     flowrate = coeff * Cv * delP ^ 0.5;
     port1.moleflow = flowrate;
     port1.moleflow = port2.moleflow;
     if OutletPfixed == true then
-      outletP = OutletPressure * 101325;
+      outletP = OutletPressure;
       port2.pressure = outletP;
     end if;
     if OutletPfixed == false then
@@ -79,6 +83,9 @@ package unitoperationsModified
       Icon(graphics = {Polygon(origin = {-48.26, -2.99}, fillColor = {170, 170, 255}, fillPattern = FillPattern.Solid, points = {{-47.7381, 48.9887}, {-47.7381, -49.0113}, {48.2619, 2.98874}, {48.2619, 2.98874}, {-47.7381, 48.9887}}), Polygon(origin = {49.25, -4.98}, fillColor = {170, 170, 255}, fillPattern = FillPattern.Solid, points = {{-47.2509, 4.98071}, {46.7491, 48.9807}, {46.7491, -49.0193}, {-47.2509, 4.98071}}), Rectangle(origin = {1, 35}, fillColor = {170, 170, 255}, fillPattern = FillPattern.Solid, extent = {{-15, 35}, {15, -35}}), Text(origin = {0, -73}, extent = {{-52, 25}, {52, -25}}, textString = "Valve")}, coordinateSystem(initialScale = 0.1)));
   end valve;
 
+
+
+
   model MaterialStream
     extends compounds;
     import Modelica.Constants.R;
@@ -86,7 +93,7 @@ package unitoperationsModified
     parameter Boolean specified_stream = false;
     parameter MolarFlowRate Flowrate = 100 annotation(
       HideResult = true);
-    parameter Pressure pressure = 1 annotation(
+    parameter Pressure pressure = 1e5 annotation(
       HideResult = true);
     parameter Temperature temperature = 300 annotation(
       HideResult = true);
@@ -156,13 +163,13 @@ package unitoperationsModified
 //flash calculations
     sum(Pf * z[:] ./ Psat_Tdf[:]) = 1;
     sum(Psat_Tbf[:] ./ Pf .* z[:]) = 1;
-    if Tf <= Tbf + 0.01 then
+    if Tf <= Tbf + 0.1 then
       zl[:] = z[:];
       zv = zeros(NOC);
       Fl = F;
       Fv = 0;
       kf = zeros(NOC);
-    elseif Tf >= Tdf - 0.01 then
+    elseif Tf >= Tdf - 0.1 then
       zv[:] = z[:];
       zl = zeros(NOC);
       Fl = 0;
@@ -203,7 +210,8 @@ package unitoperationsModified
     extends unitoperationsModified.compounds;
     import Modelica.Constants.R;
     import Modelica.SIunits.{Temperature,Volume,Pressure,MolarFlowRate};
-    parameter Boolean Dynamic = true annotation( choices(checkBox = true));
+    parameter Boolean Dynamic = true annotation(
+      choices(checkBox = true));
     parameter Real s[NOC] = {-1, -1, 1, 1} "array for A + B --> C is {-1,-1,1}" annotation(
       Dialog(tab = "Reactions", group = "Stoichiometric constants"));
     constant Integer NOIS = 2 "No of input streams";
@@ -246,16 +254,13 @@ package unitoperationsModified
       Placement(visible = true, transformation(origin = {89, -75}, extent = {{-17, -17}, {17, 17}}, rotation = 0), iconTransformation(origin = {87, -47}, extent = {{-17, -17}, {17, 17}}, rotation = 0)));
   initial equation
 //calculates steady state solution at t=0
-    P = P_init;
-    
     if Dynamic == true then
+      P = P_init;
       der(M_Total) = 0;
-      
       for i in 1:NOC - 1 loop
         der(M[i]) = 0;
       end for;
     end if;
-  
   equation
     F_in[1] = port1.moleflow;
     F_in[2] = port2.moleflow;
@@ -282,6 +287,9 @@ package unitoperationsModified
 //Pressure
     M_Total = sum(M[:]);
     P * V_Total = M_Total * R * T;
+    if Dynamic == false then
+      P = P_init;
+    end if;
 //Energy balance
     if Integer(operation_mode) == 1 then
       T = T_iso;
@@ -301,14 +309,6 @@ package unitoperationsModified
       version = "",
       uses);
   end CSTR;
-
-
-
-
-
-
-
-
 
 
 
@@ -567,45 +567,47 @@ package unitoperationsModified
       Documentation(info = "<HTML> <p> This is a generalized model for distilation column </p> </HTML>"));
   end Distillation;
 
-
   model PTFlash
-    parameter Real hset(unit = "m") = 0.7 annotation(
-      Dialog(group = "Operating conditions")), Pset(unit = "atm") = 5 annotation(
-      Dialog(group = "Operating conditions"));
     extends compounds;
     import Modelica.Constants.R;
-    import Modelica.SIunits.{Temperature, Volume, Pressure, MolarFlowRate, MoleFraction, Time, Enthalpy, MolarEnthalpy, EnthalpyFlowRate, Area, Length};
+    import Modelica.SIunits.{Temperature,Volume,Pressure,MolarFlowRate,MoleFraction,Time,Enthalpy,MolarEnthalpy,EnthalpyFlowRate,Area,Length};
+    parameter Boolean Dynamic = true annotation(
+      choices(checkBox = true));
+    parameter Length hset = 0.7 annotation(
+      Dialog(group = "Operating conditions"));
+    parameter Pressure Pset = 5e5 annotation(
+      Dialog(group = "Operating conditions"));
     parameter Boolean connectedToInput = false annotation(
-     choices(checkBox = true));
+      choices(checkBox = true));
     parameter Boolean OverrideSizeCalculations = false annotation(
-     choices(checkBox = true),
+      choices(checkBox = true),
       Dialog(tab = "Sizing"));
     parameter Real k_drum(unit = "ft/s") = 0.3 annotation(
       Dialog(tab = "Sizing"));
     parameter Area area = 4 annotation(
-      Dialog(tab = "Sizing")), A(fixed = false) annotation( 
-    Dialog(enable = false));
+      Dialog(tab = "Sizing")), A(fixed = false, start = 1) annotation(
+      Dialog(enable = false));
     parameter Volume volume = 8 annotation(
-      Dialog(tab = "Sizing")), V_Total(fixed = false) annotation( 
-    Dialog(enable = false));
+      Dialog(tab = "Sizing")), V_Total(fixed = false) annotation(
+      Dialog(enable = false));
     parameter Temperature Ti = 310 annotation(
       Dialog(group = "Operating conditions"));
-    
     MoleFraction z[NOC] annotation(
-      each HideResult = true), y[NOC](each min = 0) "molefraction in vapor phase", x[NOC](each min = 0, start = {0.7, 1e-18, 0.3, 0}) "molefraction in liquid phase";  
-    Temperature Tf "Temperature of feed";
+      each HideResult = true), y[NOC](each min = 0) "molefraction in vapor phase", x[NOC](each min = 0, start = {0.7, 1e-18, 0.3, 0}) "molefraction in liquid phase";
     MolarFlowRate F "Feed flowrate", L(start = 100, min = 0) "Liquid outlet flowrate", V(start = 140, min = 0) "Vapor outlet flowrate";
     Pressure P "Pressure inside column", Psat_T[NOC] annotation(
       each HideResult = true);
     Length h "Liquid level inside column";
     Volume VL "Liquid volume in column", VG "vapor volume in column";
-    MolarEnthalpy   hl[NOC] annotation( each HideResult = true), hv[NOC] annotation(
+    MolarEnthalpy hl[NOC] annotation(
+      each HideResult = true), hv[NOC] annotation(
       each HideResult = true);
-    Enthalpy H_M_Total(unit = "J");
+    Enthalpy H_M_Total;
     EnthalpyFlowRate Hl "Enthaply of liquid", Q "Energy required/removed", Hf "Enthalpy of feed", Hv "Enthalpy of vapor";
-    Real densityi[NOC](each unit = "kmol/m3") annotation( each HideResult = true), k[NOC] annotation(
+    Real densityi[NOC](each unit = "kmol/m3") annotation(
+      each HideResult = true), k[NOC] annotation(
       each HideResult = true), M[NOC](each unit = "mol") annotation(
-      each HideResult = true), M_Total(unit = "mol") "Total number of moles in column", ML(unit = "mol", start = 50) "Amount of liquid in column", MG(unit = "mol", start = 0.5) "Amount of vapor in column" ;
+      each HideResult = true), M_Total(unit = "mol") "Total number of moles in column", ML(unit = "mol", start = 50) "Amount of liquid in column", MG(unit = "mol", start = 0.5) "Amount of vapor in column";
     unitoperations.sensor sensor1 annotation(
       Placement(visible = true, transformation(origin = {2, 82}, extent = {{-16, -16}, {16, 16}}, rotation = 0), iconTransformation(origin = {8.88178e-16, 82}, extent = {{-14, -14}, {14, 14}}, rotation = 0)));
     unitoperations.sensor sensor3 annotation(
@@ -615,16 +617,16 @@ package unitoperationsModified
     unitoperations.port port2 annotation(
       Placement(visible = true, transformation(origin = {50, 62}, extent = {{-16, -16}, {16, 16}}, rotation = 0), iconTransformation(origin = {54, 66}, extent = {{-16, -16}, {16, 16}}, rotation = 0)));
     unitoperations.port port3 annotation(
-      Placement(visible = true, transformation(origin = {-54, 4}, extent = {{-18, -18}, {18, 18}}, rotation = 0), iconTransformation(origin = {-54, 2}, extent = {{-20, -20}, {20, 20}}, rotation = 0)));
-  
+      Placement(visible = true, transformation(origin = {-54, 4}, extent = {{-18, -18}, {18, 18}}, rotation = 0), iconTransformation(origin = {-50, -2}, extent = {{-20, -20}, {20, 20}}, rotation = 0)));
   initial equation
-    h = hset;
-    P = Pset;
-    for i in 1:NOC - 1 loop
-      der(M[i]) = 0;
-    end for;
-    der(M_Total) = 0;
-//der(H_M_Total) = 0;
+    if Dynamic == true then
+      h = hset;
+      P = Pset;
+      der(M_Total) = 0;
+      for i in 1:NOC - 1 loop
+        der(M[i]) = 0;
+      end for;
+    end if;
     if OverrideSizeCalculations == false then
       k_drum * 0.3048 * ((sum(x[:] .* densityi[:]) - P / (R * Ti * 1000)) * P / (R * Ti * 1000)) ^ 0.5 * 1000 * A = V;
       V_Total = A * 4 * (4 * A / 3.14) ^ 0.5;
@@ -632,11 +634,9 @@ package unitoperationsModified
       A = area;
       V_Total = volume;
     end if;
-  
   equation
     F = port3.moleflow;
     z[:] = port3.molefrac[:];
-    Tf = port3.temperature;
     if connectedToInput == false then
       port3.pressure = P;
     end if;
@@ -647,32 +647,34 @@ package unitoperationsModified
       densityi[i] = Functions.Density(comp[i].LiqDen, comp[i].Tc, Ti, P);
     end for;
 /* Mass Blanace equations */
-    der(M_Total) = F - L - V;
-//F - L - V = 0;
+    F - L - V = if Dynamic == true then der(M_Total) else 0;
     for i in 1:NOC - 1 loop
-      der(M[i]) = F * z[i] - L * x[i] - V * y[i];
-//F * z[i] - L * x[i] - V * y[i] = 0;
+      F * z[i] - L * x[i] - V * y[i] = if Dynamic == true then der(M[i]) else 0;
       M[i] = ML * x[i] + MG * y[i];
     end for;
+    
     sum(M[:]) = M_Total;
     M_Total = MG + ML;
     VL = ML / (sum(x[:] .* densityi[:]) * 1000);
     VG = V_Total - VL;
-    P * VG = MG * R * Ti;
 //ideal gas law for gas phase
-/*energy balance */
+    P * VG = MG * R * Ti;
+//energy balance 
     Hv = V * sum(y[:] .* hv[:]);
     Hf = port3.enthalpy;
     Hl = L * sum(x[:] .* hl[:]);
     H_M_Total = ML * sum(x[:] .* hl[:]) + MG * sum(y[:] .* hv[:]);
-//Hf - Hv - Hl + Q  = der(H_M_Total);
     Hf - Hv - Hl + Q = 0;
-/*Thermodynamic equations */
+//Thermodynamic equations 
     sum(x[:]) = 1;
     sum(y[:]) = 1;
     y[:] = k[:] .* x[:];
     k[:] = Psat_T[:] / P;
     A * h = VL;
+    if Dynamic == false then
+      h = hset;
+      P = Pset;
+    end if;
 //connector equations
     sensor1.var = P;
     sensor3.var = h;
@@ -690,43 +692,6 @@ package unitoperationsModified
       version = "",
       uses);
   end PTFlash;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -956,14 +921,9 @@ package unitoperationsModified
   end Mixer;
 
   package types
-  extends Modelica.Icons.TypesPackage;
-  type operation_type = enumeration(Isothermal, Adiabatic);
-  type Distillation_spec1 = enumeration(CondensorHeatLoad, ProductMolarFlow, CompoundMolarFlow, CompoundFractionInStream, RefluxRatio, Temperature) "condensor";
-  type Distillation_spec2 = enumeration(ReboilerHeatLoad, ProductMolarFlow, CompoundMolarFlow, CompoundFractionInStream, BoilUpRatio, Temperature) "reboiler";
+    extends Modelica.Icons.TypesPackage;
+    type operation_type = enumeration(Isothermal, Adiabatic);
+    type Distillation_spec1 = enumeration(CondensorHeatLoad, ProductMolarFlow, CompoundMolarFlow, CompoundFractionInStream, RefluxRatio, Temperature) "condensor";
+    type Distillation_spec2 = enumeration(ReboilerHeatLoad, ProductMolarFlow, CompoundMolarFlow, CompoundFractionInStream, BoilUpRatio, Temperature) "reboiler";
   end types;
-
-
-
-
-
 end unitoperationsModified;
