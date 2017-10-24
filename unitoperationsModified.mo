@@ -83,9 +83,6 @@ package unitoperationsModified
       Icon(graphics = {Polygon(origin = {-48.26, -2.99}, fillColor = {170, 170, 255}, fillPattern = FillPattern.Solid, points = {{-47.7381, 48.9887}, {-47.7381, -49.0113}, {48.2619, 2.98874}, {48.2619, 2.98874}, {-47.7381, 48.9887}}), Polygon(origin = {49.25, -4.98}, fillColor = {170, 170, 255}, fillPattern = FillPattern.Solid, points = {{-47.2509, 4.98071}, {46.7491, 48.9807}, {46.7491, -49.0193}, {-47.2509, 4.98071}}), Rectangle(origin = {1, 35}, fillColor = {170, 170, 255}, fillPattern = FillPattern.Solid, extent = {{-15, 35}, {15, -35}}), Text(origin = {0, -73}, extent = {{-52, 25}, {52, -25}}, textString = "Valve")}, coordinateSystem(initialScale = 0.1)));
   end valve;
 
-
-
-
   model MaterialStream
     extends compounds;
     import Modelica.Constants.R;
@@ -310,9 +307,6 @@ package unitoperationsModified
       uses);
   end CSTR;
 
-
-
-
   model HeatExchanger
     extends compounds;
     parameter Real Tout = 38 + 273;
@@ -369,7 +363,7 @@ package unitoperationsModified
   end CompoundSeperator;
 
   model Distillation
-    import Modelica.SIunits.{Temperature, Volume, Pressure, MolarFlowRate, MoleFraction, Time, Enthalpy, MolarEnthalpy, EnthalpyFlowRate, Area, Length};
+    import Modelica.SIunits.{Temperature,Volume,Pressure,MolarFlowRate,MoleFraction,Time,Enthalpy,MolarEnthalpy,EnthalpyFlowRate,Area,Length};
     import Modelica.Constants.R;
     parameter Chemsep_Database.Benzene comp1 annotation(
       Dialog(tab = "General", group = "compounds"));
@@ -402,31 +396,26 @@ package unitoperationsModified
     parameter Real specification1_value = 1;
     parameter types.Distillation_spec2 specification2 "reboiler";
     parameter Real specification2_value = 1;
+    parameter Time tou_L = 2.5 "time constant for liquid dynamics" annotation(
+      Dialog(tab = "dynamic"));
     parameter Real pi1 = -12.55 "constant for calculationg froth density, phi" annotation(
       Dialog(tab = "dynamic", group = "vapor flow"));
     parameter Real pi2 = 0.91 "constant for calculationg froth density, phi" annotation(
       Dialog(tab = "dynamic", group = "vapor flow"));
-    
+    parameter Real phi[N_Trays] (each fixed = false);
     MoleFraction z[N_Trays, NOC](start = fill(0.5, N_Trays, NOC)) annotation(
       each HideResult = true), y[N_Trays, NOC](start = fill(0.5, N_Trays, NOC)), x[N_Trays, NOC](start = fill(0.5, N_Trays, NOC), each nominal = 1e-1), y_eq[N_Trays, NOC] annotation(
       each HideResult = true), xc[NOC], xr[NOC], yNT[NOC];
-    
-    Temperature Tf[N_Trays] annotation(
-      each HideResult = true), T[N_Trays](start = linspace(386, 354, N_Trays), each nominal = 1e2), TC(start = 368), TB(start = 377);
-    
+    Temperature Tf[N_Trays] annotation( each HideResult = true), T[N_Trays](start = linspace(386, 354, N_Trays), each nominal = 1e2), TC(start = 368), TB(start = 377);
     MolarFlowRate F[N_Trays](each start = 0) annotation(
-      each HideResult = true), V[N_Trays](each start = 70), L[N_Trays](each start = 100), L0(start = 50), VNT, D, B;
-    
-    
-    Pressure Psat[N_Trays, NOC] annotation(each HideResult = true), PsatC[NOC] annotation(each HideResult = true), PsatB[NOC] annotation(
+      each HideResult = true), V[N_Trays](each start = 70), L[N_Trays](each start = 100), L0(start = 50), V0, D, B;
+    Pressure Psat[N_Trays, NOC] annotation(
+      each HideResult = true), PsatC[NOC] annotation(
+      each HideResult = true), PsatB[NOC] annotation(
       each HideResult = true), P[N_Trays];
-    
-    Real M[N_Trays](each unit = "mol", each start = 2000), den[N_Trays, NOC](each unit = "kmol/m3")  annotation(
-      each HideResult = true), Cpl[N_Trays, NOC](each unit = "J/mol.K") annotation(
-      each HideResult = true), Ks[N_Trays] annotation(
-      each HideResult = true), Keq[N_Trays, NOC] annotation(
+    Real M[N_Trays](each unit = "mol", each start = 2000), den[N_Trays, NOC](each unit = "kmol/m3"), Cpl[N_Trays, NOC](each unit = "J/mol.K") annotation(
+      each HideResult = true), Ks[N_Trays], Keq[N_Trays, NOC] annotation(
       each HideResult = true);
-    
     MolarEnthalpy hv[N_Trays, NOC](each nominal = 1e3) annotation(
       each HideResult = true), hl[N_Trays, NOC](each nominal = 1e4) annotation(
       each HideResult = true), hf[N_Trays, NOC] annotation(
@@ -434,8 +423,8 @@ package unitoperationsModified
       each HideResult = true), hl_B[NOC] annotation(
       each HideResult = true), hl_C[NOC] annotation(
       each HideResult = true);
-    
     EnthalpyFlowRate QC(start = 1.35e6, nominal = 1e6), QB(start = 1.5e6, nominal = 1e6);
+    Real dens[N_Trays], how[N_Trays], hcl[N_Trays];
     unitoperations.port port1 annotation(
       Placement(visible = true, transformation(origin = {-54, 0}, extent = {{-18, -18}, {18, 18}}, rotation = 0), iconTransformation(origin = {-56, 2}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
     unitoperations.port port2 annotation(
@@ -443,14 +432,15 @@ package unitoperationsModified
     unitoperations.port port3 annotation(
       Placement(visible = true, transformation(origin = {62, -80}, extent = {{-10, -10}, {10, 10}}, rotation = 0), iconTransformation(origin = {50, -62}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
   initial equation
-
     if Dynamic == true then
       for i in 1:N_Trays loop
         der(M[i]) = 0;
         der(T[i]) = 0;
+        /*M[i] = A_active * sum(x[i, :] .* den[i, :]) * 1000 * (exp(pi1 * Ks[i] ^ pi2) * h_weir + 44300 * 10 ^ (-3) * (L[i] / (sum(x[i, :] .* den[i, :]) * 1000 * 0.5 * d_weir * 1000)) ^ 0.704);*/
+        phi[i] = exp(pi1 * Ks[i] ^ pi2);
       end for;
     end if;
-  //sizing
+//sizing
     if Override_Sizing_Calculations == false then
       Kv * 0.3048 * ((den[1, :] * x[1, :] - P[1] / (R * T[1] * 1000)) * (P[1] / (R * T[1] * 1000))) ^ 0.5 * 1000 * A_active = max(V);
       d_weir = (A_active * 4 / 3.14) ^ 0.5;
@@ -458,7 +448,6 @@ package unitoperationsModified
       A_active = Active_area;
       d_weir = Weir_diameter;
     end if;
-    
   equation
 //  port1.pressure = P[N_Feed]; "should be automatic"
     for i in 1:N_Trays loop
@@ -471,8 +460,7 @@ package unitoperationsModified
       z[i, 1] = port1.molefrac[3];
       z[i, 2] = port1.molefrac[1];
     end for;
-
-  //functions required
+//functions required
     for i in 1:NOC loop
       Psat[:, i] = Functions.Psat(comp[i].VP, T[:]);
       hv[:, i] = Functions.HVapId(comp[i].VapCp, comp[i].HOV, comp[i].Tc, T[:]);
@@ -486,51 +474,44 @@ package unitoperationsModified
       PsatC[i] = Functions.Psat(comp[i].VP, TC);
       PsatB[i] = Functions.Psat(comp[i].VP, TB);
     end for;
-  
-  //superficial velocity
+//superficial velocity
     for i in 1:N_Trays loop
       Ks[i] = V[i] * R * T[i] / (A_active * P[i]) * (P[i] / (R * T[i] * (1000 * sum(x[i, :] .* den[i, :]) - P[i] / (R * T[i])))) ^ 0.5;
+      dens[i] = sum(x[i, :] .* den[i, :]);
+      how[i] = 44300 * (L[i] / (sum(x[i, :] .* den[i, :]) * 1000 * 0.5 * d_weir * 1000)) ^ 0.704 ; 
+      hcl[i] = phi[i] * h_weir + how[i] * 10 ^ (-3);
     end for;
-
-  //mass balance
+//mass balance
     xr[:] = x[1, :];
     yNT[:] = xr[:];
-    L[1] - VNT - B = 0;
-  
+    L[1] - V0 - B = 0;
     for i in 1:N_Trays loop
-      M[i] = A_active * sum(x[i, :] .* den[i, :]) * 1000 * (exp(pi1 * Ks[i] ^ pi2) * h_weir + 44300 * 10 ^ (-3) * (L[i] / (sum(x[i, :] .* den[i, :]) * 1000 * d_weir * 1000)) ^ 0.704);
+      if Dynamic == false then 
+        der(M[i]) = tou_L * der(L[i]);
+      else
+        M[i] = A_active * sum(x[i, :] .* den[i, :]) * 1000 * (phi[i] * h_weir + 44300 * 10 ^ (-3) * (L[i] / (sum(x[i, :] .* den[i, :]) * 1000 * 0.5 * d_weir * 1000)) ^ 0.704);
+      end if;
     end for;
-  
-    VNT .* yNT[:] + L[2] .* x[2, :] - V[1] .* y[1, :] - L[1] .* x[1, :] + F[1] .* z[1, :] = if Dynamic == true then der(x[1, :] * M[1]) else zeros(NOC);
-  
+    V0 .* yNT[:] + L[2] .* x[2, :] - V[1] .* y[1, :] - L[1] .* x[1, :] + F[1] .* z[1, :] = if Dynamic == true then der(x[1, :] * M[1]) else zeros(NOC);
     for i in 2:N_Trays - 1 loop
       V[i - 1] .* y[i - 1, :] + L[i + 1] .* x[i + 1, :] - V[i] .* y[i, :] - L[i] .* x[i, :] + F[i] .* z[i, :] = if Dynamic == true then der(x[i, :] * M[i]) else zeros(NOC);
     end for;
-  
     V[N_Trays - 1] .* y[N_Trays - 1, :] + L0 .* xc[:] - V[N_Trays] .* y[N_Trays, :] - L[N_Trays] .* x[N_Trays, :] + F[N_Trays] .* z[N_Trays, :] = if Dynamic == true then der(x[N_Trays, :] * M[N_Trays]) else zeros(NOC);
-  
     V[N_Trays] - L0 - D = 0;
-  
     y[N_Trays, :] = xc[:];
-
-  //energy balance
-    VNT * sum(yNT[:] .* hv_B[:]) - V[1] * sum(y[1, :] .* hv[1, :]) + L[2] * sum(x[2, :] .* hl[2, :]) - L[1] * sum(x[1, :] .* hl[1, :]) + F[1] * sum(z[1, :] .* hf[1, :]) = if Dynamic == true then der(x[1, :] * M[1]) * hl[1, :] + x[1, :] * M[1] * Cpl[1, :] * der(T[1]) else 0;
-  
+//energy balance
+    V0 * sum(yNT[:] .* hv_B[:]) - V[1] * sum(y[1, :] .* hv[1, :]) + L[2] * sum(x[2, :] .* hl[2, :]) - L[1] * sum(x[1, :] .* hl[1, :]) + F[1] * sum(z[1, :] .* hf[1, :]) = if Dynamic == true then der(x[1, :] * M[1]) * hl[1, :] + x[1, :] * M[1] * Cpl[1, :] * der(T[1]) else 0;
     for i in 2:N_Trays - 1 loop
       V[i - 1] * sum(y[i - 1, :] .* hv[i - 1, :]) - V[i] * sum(y[i, :] .* hv[i, :]) + L[i + 1] * sum(x[i + 1, :] .* hl[i + 1, :]) - L[i] * sum(x[i, :] .* hl[i, :]) + F[i] * sum(z[i, :] .* hf[i, :]) = if Dynamic == true then der(x[i, :] * M[i]) * hl[i, :] + x[i, :] * M[i] * Cpl[i, :] * der(T[i]) else 0;
     end for;
-  
     V[N_Trays - 1] * sum(y[N_Trays - 1, :] .* hv[N_Trays - 1, :]) - V[N_Trays] * sum(y[N_Trays, :] .* hv[N_Trays, :]) + L0 * sum(xc[:] .* hl_C[:]) - L[N_Trays] * sum(x[N_Trays, :] .* hl[N_Trays, :]) + F[N_Trays] * sum(z[N_Trays, :] .* hf[N_Trays, :]) = if Dynamic == true then der(x[N_Trays, :] * M[N_Trays]) * hl[N_Trays, :] + x[N_Trays, :] * M[N_Trays] * Cpl[N_Trays, :] * der(T[N_Trays]) else 0;
-
     V[N_Trays] * sum(y[N_Trays, :] .* hv[N_Trays, :]) - (L0 + D) * sum(xc[:] .* hl_C[:]) = QC;
-    L[1] * sum(x[1, :] .* hl[1, :]) - B * sum(xr[:] .* hl_B[:]) - VNT * sum(xr[:] .* hv_B[:]) = QB;
-  
-  //pressure
+    L[1] * sum(x[1, :] .* hl[1, :]) - B * sum(xr[:] .* hl_B[:]) - V0 * sum(xr[:] .* hv_B[:]) = QB;
+//pressure
     for i in 1:N_Trays loop
-      P[i] = (P_condenser + (N_Trays - i + 1) * Pressure_drop);
+      P[i] = P_condenser + (N_Trays - i + 1) * Pressure_drop;
     end for;
-
-  //Equilibrium
+//Equilibrium
     for i in 1:N_Trays loop
       Keq[i, :] = Psat[i, :] ./ P[i];
       y_eq[i, :] = Keq[i, :] .* x[i, :];
@@ -538,11 +519,9 @@ package unitoperationsModified
       sum(x[i, :]) = 1;
       sum(y_eq[i, :]) = 1;
     end for;
-  
-    sum(y[N_Trays, :] .* PsatC[:] / (P_condenser)) = 1;
+    sum(y[N_Trays, :] .* PsatC[:] / P_condenser) = 1;
     sum(x[1, :] .* (P[1] + Pressure_drop) ./ PsatB[:]) = 1;
-  
-  //connector
+//connector
     port2.moleflow = D;
     port2.molefrac = {xc[2], 0, xc[1], 0};
     port2.temperature = TC;
@@ -551,8 +530,7 @@ package unitoperationsModified
     port3.molefrac = {xr[2], 0, xr[1], 0};
     port3.temperature = TB;
     port3.pressure = P[1] + Pressure_drop;
-
-  //Equations for Specification
+//Equations for Specification
     if Integer(specification1) == 1 then
       QC = specification1_value;
     elseif Integer(specification1) == 2 then
@@ -579,7 +557,7 @@ package unitoperationsModified
       xc[1] = specification2_value;
 //yet to modify
     elseif Integer(specification2) == 5 then
-      VNT = specification2_value * B;
+      V0 = specification2_value * B;
     else
       TB = specification2_value;
     end if;
@@ -590,21 +568,6 @@ package unitoperationsModified
       uses,
       Documentation(info = "<HTML> <p> This is a generalized model for distilation column </p> </HTML>"));
   end Distillation;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -716,20 +679,19 @@ package unitoperationsModified
       F * z[i] - L * x[i] - V * y[i] = if Dynamic == true then der(M[i]) else 0;
       M[i] = ML * x[i] + MG * y[i];
     end for;
-    
     sum(M[:]) = M_Total;
     M_Total = MG + ML;
     VL = ML / (sum(x[:] .* densityi[:]) * 1000);
     VG = V_Total - VL;
 //ideal gas law for gas phase
     P * VG = MG * R * Ti;
-//energy balance 
+//energy balance
     Hv = V * sum(y[:] .* hv[:]);
     Hf = port3.enthalpy;
     Hl = L * sum(x[:] .* hl[:]);
     H_M_Total = ML * sum(x[:] .* hl[:]) + MG * sum(y[:] .* hv[:]);
     Hf - Hv - Hl + Q = 0;
-//Thermodynamic equations 
+//Thermodynamic equations
     sum(x[:]) = 1;
     sum(y[:]) = 1;
     y[:] = k[:] .* x[:];
@@ -756,13 +718,6 @@ package unitoperationsModified
       version = "",
       uses);
   end PTFlash;
-
-
-
-
-
-
-
 
   model Pump
     extends compounds;
@@ -984,10 +939,19 @@ package unitoperationsModified
       uses);
   end Mixer;
 
+  //within unitoperationsModified;
+
   package types
     extends Modelica.Icons.TypesPackage;
     type operation_type = enumeration(Isothermal, Adiabatic);
     type Distillation_spec1 = enumeration(CondensorHeatLoad, ProductMolarFlow, CompoundMolarFlow, CompoundFractionInStream, RefluxRatio, Temperature) "condensor";
     type Distillation_spec2 = enumeration(ReboilerHeatLoad, ProductMolarFlow, CompoundMolarFlow, CompoundFractionInStream, BoilUpRatio, Temperature) "reboiler";
   end types;
+
+  package partialUnits
+    partial model condensor
+    end condensor;
+
+
+  end partialUnits;
 end unitoperationsModified;

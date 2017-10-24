@@ -52,7 +52,7 @@ package BenzeneProductionNewtest
   model Distillationtest
     unitoperationsModified.MaterialStream feed(Flowrate = 80, molefraction = {0.5, 0, 0.5, 0}, pressure = 100000, specified_stream = true, step_value = 2, stepchange = true, stepchangetime = 0.5)  annotation(
       Placement(visible = true, transformation(origin = {-78, 0}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
-    unitoperationsModified.Distillation distillation1(Dynamic = false, Override_Sizing_Calculations = false, P_condenser = 100000, Pressure_drop = 700, specification1 = unitoperationsModified.types.Distillation_spec1.RefluxRatio, specification1_value = 2, specification2 = unitoperationsModified.types.Distillation_spec2.ProductMolarFlow, specification2_value = 20)  annotation(
+    unitoperationsModified.Distillation distillation1(Dynamic = true, Override_Sizing_Calculations = false, P_condenser = 100000, Pressure_drop = 700, specification1 = unitoperationsModified.types.Distillation_spec1.RefluxRatio, specification1_value = 2, specification2 = unitoperationsModified.types.Distillation_spec2.ProductMolarFlow, specification2_value = 30)  annotation(
       Placement(visible = true, transformation(origin = {-33, 0.787066}, extent = {{-16, -29.6981}, {16, 21.2129}}, rotation = 0)));
   unitoperationsModified.MaterialStream distillate annotation(
       Placement(visible = true, transformation(origin = {20, 18}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
