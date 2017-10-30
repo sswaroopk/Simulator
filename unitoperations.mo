@@ -38,10 +38,11 @@ package unitoperations
 
   model valve
     import Modelica.SIunits.{MolarFlowRate,Pressure};
-    parameter Real coeff(fixed = false) "Coeff for valve", valveCv = 0.4 "valve Cv if not control valve";
+    parameter Real valveCv = 0.4 "valve Cv if not control valve";
     parameter Boolean Control = false;
     parameter Boolean OutletPfixed = false;
     parameter Pressure OutletPressure = 1e5 "used only when OutletPfixed is true";
+    protected parameter Real coeff(fixed = false) "Coeff for valve" annotation( HideResult = false);
     MolarFlowRate flowrate;
     Real Cv;
     Pressure outletP, delP;
@@ -81,6 +82,8 @@ package unitoperations
     annotation(
       Icon(graphics = {Polygon(origin = {-48.26, -2.99}, fillColor = {170, 170, 255}, fillPattern = FillPattern.Solid, points = {{-47.7381, 48.9887}, {-47.7381, -49.0113}, {48.2619, 2.98874}, {48.2619, 2.98874}, {-47.7381, 48.9887}}), Polygon(origin = {49.25, -4.98}, fillColor = {170, 170, 255}, fillPattern = FillPattern.Solid, points = {{-47.2509, 4.98071}, {46.7491, 48.9807}, {46.7491, -49.0193}, {-47.2509, 4.98071}}), Rectangle(origin = {1, 35}, fillColor = {170, 170, 255}, fillPattern = FillPattern.Solid, extent = {{-15, 35}, {15, -35}}), Text(origin = {0, -73}, extent = {{-52, 25}, {52, -25}}, textString = "Valve")}, coordinateSystem(initialScale = 0.1)));
   end valve;
+
+
 
 
 
@@ -234,17 +237,19 @@ package unitoperations
     parameter Real delH_r(unit = "J/mol") = 12.6e3 "Heat of reaction" annotation(
       Dialog(tab = "Reactions", group = "Reaction rate constants"));
     parameter types.operation_type operation_mode;
+    parameter Boolean ConstantTemperature = false;
     parameter Temperature T_iso = 900;
     MolarFlowRate F_in[NOIS] annotation(
-      each HideResult = true);
+      each HideResult = true), F_out;
     Real z[NOIS, NOC] annotation(
       each HideResult = true);
     Real Hin[NOIS](each unit = "J/s") annotation(
       each HideResult = true);
-    Real M_Total(unit = "mol", start = 1.5), M[NOC](each unit = "mol"), x[NOC], F_out(unit = "mol/s"), densityi[NOC](each unit = "kmol/m3") annotation(
-      each HideResult = true), P(unit = "Pa");
-    Real r(unit = "mol/s"), kf, kb, c[NOC](each unit = "mol/m3");
-    Real H_r(unit = "J/s"), Hout(unit = "J/s"), Q(unit = "J/s"), T(unit = "K", start = 600);
+    Real M_Total(unit = "mol", start = 1.5), M[NOC](each unit = "mol"), x[NOC] "molefraction of species", densityi[NOC](each unit = "kmol/m3") annotation(
+      each HideResult = true);
+    Pressure P;
+    Real r(unit = "mol/s") "rate of reaction", kf, kb, c[NOC](each unit = "mol/m3") "concentration of species";
+    Real H_r(unit = "J/s"), Hout(unit = "J/s"), Q(unit = "J/s"), T(unit = "K", start = 600), cpv[NOC], hv[NOC];
     unitoperations.port port1 annotation(
       Placement(visible = true, transformation(origin = {-82, 2}, extent = {{-18, -18}, {18, 18}}, rotation = 0), iconTransformation(origin = {-87, 1}, extent = {{-17, -17}, {17, 17}}, rotation = 0)));
     unitoperations.port port2 annotation(
@@ -254,12 +259,16 @@ package unitoperations
   initial equation
 //calculates steady state solution at t=0
     P = P_init;
+    if Integer(operation_mode) == 1 and ConstantTemperature == false then
+      T = T_iso;
+    end if;
     if Dynamic == true then
-      
+  
       der(M_Total) = 0;
       for i in 1:NOC - 1 loop
         der(M[i]) = 0;
       end for;
+      der(T) = 0;
     end if;
   equation
     F_in[1] = port1.moleflow;
@@ -270,6 +279,8 @@ package unitoperations
     Hin[2] = port2.enthalpy;
     for i in 1:NOC loop
       densityi[i] = Functions.Density(comp[i].LiqDen, comp[i].Tc, T, P);
+      hv[i] = Functions.HVapId(comp[i].VapCp, comp[i].HOV, comp[i].Tc, T);
+      cpv[i] = Functions.VapCpId(comp[i].VapCp, T);
     end for;
     for i in 1:NOC loop
       x[i] = M[i] / M_Total;
@@ -287,17 +298,18 @@ package unitoperations
 //Pressure
     M_Total = sum(M[:]);
     P * V_Total = M_Total * R * T;
-    /*if Dynamic == false then
-      P = P_init;
-    end if; */
 //Energy balance
     if Integer(operation_mode) == 1 then
-      T = T_iso;
+      if ConstantTemperature == true then
+        T = T_iso;
+      else
+        der(Q) = 0;
+      end if;
     else
       Q = 0;
     end if;
     H_r = r * V_Total * delH_r;
-    sum(Hin[:]) + Q + H_r = Hout;
+    sum(Hin[:]) + Q + H_r - Hout = if Dynamic == true then der(M[:]) * hv[:] + M[:] * cpv[:] * der(T) else 0;
     Hout = port3.enthalpy;
     port3.moleflow = F_out;
     port3.temperature = T;
@@ -309,6 +321,25 @@ package unitoperations
       version = "",
       uses);
   end CSTR;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -448,7 +479,7 @@ package unitoperations
       Dialog(tab = "General", group = "compounds"));
     parameter Integer NOC = 2 "No. of compounds" annotation(
       Dialog(tab = "General", group = "compounds"));
-    parameter Real phi[N_Trays] (each fixed = false) ;
+    parameter Real phi[N_Trays] (each fixed = false, each start = 0.8) ;
     parameter Area A_active(fixed = false, start = 0.49);
     parameter Length d_weir(fixed = false, start = 0.5);
     
@@ -642,6 +673,7 @@ package unitoperations
 
 
 
+
   model PTFlash
     extends compounds;
     import Modelica.Constants.R;
@@ -698,7 +730,7 @@ package unitoperations
       HideResult = false);
     
   initial equation
-        h = hset;
+      h = hset;
       P = Pset;
     if Dynamic == true then
   
@@ -767,6 +799,7 @@ package unitoperations
       version = "",
       uses);
   end PTFlash;
+
 
 
 
